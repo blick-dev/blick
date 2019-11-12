@@ -26,7 +26,6 @@ export class DevicesComponent implements OnInit, AfterContentInit {
             .map(d => d.width + this.padding * 2)
             .reduce((p, c) => p + c + 14) + 'px'
         : '0';
-    console.log('width', w, this.zoom, this.padding, this.devices);
     return w;
   }
 

@@ -29,6 +29,13 @@ export interface DevicesStateModel {
         width: 1920,
         orientation: 'portrait',
         platform: 'safari'
+      },
+      {
+        name: 'Common Chrome',
+        height: 768,
+        width: 1366,
+        orientation: 'portrait',
+        platform: 'chrome'
       }
     ]
   }

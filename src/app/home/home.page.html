@@ -4,8 +4,8 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-input class="url-input" [value]="url | async" type="url" placeholder="URL"></ion-input>
-    <ion-range matTooltip="zoom level" [(ngModel)]="zoom" slot="end" color="primary" min="20" max="140"
-      dualKnobs="false" pin="true" snaps="false" step="1" ticks="true" [value]="zoom" color="primary">
+    <ion-range [matTooltip]="'zoom level ' + zoom + '%'" [(ngModel)]="zoom" slot="end" color="primary" min="20"
+      max="140" step="1" ticks="true" [value]="zoom" color="primary">
     </ion-range>
     <ion-buttons slot="end">
       <ion-button matTooltip="darkmode">

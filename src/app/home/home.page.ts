@@ -16,7 +16,10 @@ import {
   withLatestFrom,
   takeUntil,
   mergeMap,
-  tap
+  tap,
+  startWith,
+  reduce,
+  scan
 } from 'rxjs/operators';
 import { Select } from '@ngxs/store';
 import { Device } from '@store/devices/devices.action';
@@ -59,6 +62,7 @@ export class HomePage implements OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     this.setupDrag();
     this.setupWheel();
+    this.setupPinch();
   }
 
   setupWheel() {
@@ -86,6 +90,33 @@ export class HomePage implements OnDestroy, AfterViewInit {
     }
   }
 
+  setupPinch() {
+    fromEvent<WheelEvent>(this.el.nativeElement, 'mousewheel', {
+      passive: false,
+      capture: true
+    })
+      .pipe(
+        filter(e => !!e.ctrlKey),
+        map(event => -1 * event.deltaY),
+        startWith(60),
+        scan((curr, value) => Math.min(140, Math.max(curr + value, 20))),
+        tap(zoom => (this.zoom = zoom)),
+        takeUntil(this.onDestroy$)
+      )
+      .subscribe();
+
+    fromEvent<WheelEvent>(this.el.nativeElement, 'mousewheel', {
+      passive: false,
+      capture: true
+    })
+      .pipe(
+        filter(e => !e.ctrlKey),
+        map(event => ({ posX: event.deltaX * -2, posY: event.deltaY * -2 })),
+        takeUntil(this.onDestroy$)
+      )
+      .subscribe();
+  }
+
   setupDrag() {
     const scroll = from(this.content.getScrollElement());
     const move$ = fromEvent<MouseEvent>(this.el.nativeElement, 'mousemove');
@@ -96,29 +127,33 @@ export class HomePage implements OnDestroy, AfterViewInit {
     const up$ = fromEvent<MouseEvent>(this.el.nativeElement, 'mouseup');
     let startX;
     let scrollLeft;
+    let startY;
+    let scrollTop;
 
     const walk = (event: [MouseEvent, HTMLElement]) => {
-      console.log('walk', event);
       const x = event[0].pageX - event[1].offsetLeft;
-      const walk = (x - startX) * 3; //scroll fast
-      event[1].scrollLeft = scrollLeft - walk;
+      const y = event[0].pageY - event[1].offsetTop;
+      const walkX = (x - startX) * 2.6;
+      const walkY = (y - startY) * 2.6;
+      event[1].scrollLeft = scrollLeft - walkX;
+      event[1].scrollTop = scrollTop - walkY;
     };
 
     down$
       .pipe(
-        tap(console.log),
         tap(() => this.el.nativeElement.classList.add('drag')),
         flatMap(() => scroll),
         withLatestFrom(down$),
         tap(v => (startX = v[1].pageX - v[0].offsetLeft)),
+        tap(v => (startY = v[1].pageY - v[0].offsetTop)),
         tap(v => (scrollLeft = v[0].scrollLeft)),
+        tap(v => (scrollTop = v[0].scrollTop)),
         takeUntil(this.onDestroy$)
       )
       .subscribe();
 
     up$
       .pipe(
-        tap(console.log),
         tap(() => this.el.nativeElement.classList.remove('drag')),
         takeUntil(this.onDestroy$)
       )
@@ -128,7 +163,6 @@ export class HomePage implements OnDestroy, AfterViewInit {
       .pipe(
         mergeMap(() => move$.pipe(takeUntil(up$))),
         withLatestFrom(scroll),
-        tap(console.log),
         tap(event => event[0].preventDefault()),
         tap(walk),
         takeUntil(this.onDestroy$)

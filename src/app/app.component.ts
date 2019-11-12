@@ -9,7 +9,9 @@ import { Dispatch } from '@ngxs-labs/dispatch-decorator';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent {
-  constructor(private platform: Platform) {}
+  constructor(private platform: Platform) {
+    console.log(platform);
+  }
 
   @Dispatch()
   addDevice = () =>
