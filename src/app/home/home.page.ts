@@ -11,14 +11,16 @@ import { IonContent } from '@ionic/angular';
 import { from, fromEvent, Subject, Observable } from 'rxjs';
 import {
   filter,
-  tap,
+  map,
   flatMap,
   withLatestFrom,
   takeUntil,
-  mergeMap
+  mergeMap,
+  tap
 } from 'rxjs/operators';
 import { Select } from '@ngxs/store';
 import { Device } from '@store/devices/devices.action';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -26,7 +28,7 @@ import { Device } from '@store/devices/devices.action';
   styleUrls: ['home.page.scss']
 })
 export class HomePage implements OnDestroy, AfterViewInit {
-  url: string = 'https://fivethree-team.github.io/ionic-4-components/';
+  url: Observable<string>;
   zoom: number = 60;
 
   @Select(DevicesState.devices)
@@ -40,7 +42,15 @@ export class HomePage implements OnDestroy, AfterViewInit {
 
   onDestroy$ = new Subject();
 
-  constructor() {}
+  constructor(private activeRoute: ActivatedRoute) {
+    this.url = this.activeRoute.queryParams.pipe(
+      map(params =>
+        params.url
+          ? params.url
+          : 'https://fivethree-team.github.io/ionic-4-components/'
+      )
+    );
+  }
 
   ngOnDestroy(): void {
     this.onDestroy$.next();

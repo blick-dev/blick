@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-input class="url-input" [(ngModel)]="url" type="url" placeholder="URL"></ion-input>
+    <ion-input class="url-input" [value]="url | async" type="url" placeholder="URL"></ion-input>
     <ion-range matTooltip="zoom level" [(ngModel)]="zoom" slot="end" color="primary" min="20" max="140"
       dualKnobs="false" pin="true" snaps="false" step="1" ticks="true" [value]="zoom" color="primary">
     </ion-range>
@@ -27,7 +27,8 @@
 <ion-content #content scrollX="true">
   <app-devices [zoom]="zoom / 100">
     <app-device *ngFor="let device of devices | async" [width]="device.width" [height]="device.height"
-      [name]="device.name" [platform]="device.platform" [orientation]="device.orientation" [url]="url"></app-device>
+      [name]="device.name" [platform]="device.platform" [orientation]="device.orientation" [url]="url | async">
+    </app-device>
   </app-devices>
   <div class="landing" *ngIf="devices | empty | async">
     no devices
