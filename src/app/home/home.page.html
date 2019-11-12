@@ -1,14 +1,36 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
+<ion-header no-border>
+  <ion-toolbar class="url-bar">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-input class="url-input" [(ngModel)]="url" type="url" placeholder="URL"></ion-input>
+    <ion-range matTooltip="zoom level" [(ngModel)]="zoom" slot="end" color="primary" min="20" max="140"
+      dualKnobs="false" pin="true" snaps="false" step="1" ticks="true" [value]="zoom" color="primary">
+    </ion-range>
+    <ion-buttons slot="end">
+      <ion-button matTooltip="darkmode">
+        <ion-icon slot="icon-only" name="contrast"></ion-icon>
+      </ion-button>
+      <div class="delimiter"></div>
+      <ion-button matTooltip="show common browser sizes" class="platform">
+        <ion-icon slot="icon-only" color="primary" name="laptop"></ion-icon>
+      </ion-button>
+      <ion-button matTooltip="show android devices" class="platform">
+        <ion-icon slot="icon-only" name="logo-android"></ion-icon>
+      </ion-button>
+      <ion-button matTooltip="show ios devices" class="platform">
+        <ion-icon slot="icon-only" name="logo-apple"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-
-<ion-content>
-  <div class="ion-padding">
-    The world is your oyster.
-    <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
+<ion-content #content scrollX="true">
+  <app-devices [zoom]="zoom / 100">
+    <app-device *ngFor="let device of devices | async" [width]="device.width" [height]="device.height"
+      [name]="device.name" [platform]="device.platform" [orientation]="device.orientation" [url]="url"></app-device>
+  </app-devices>
+  <div class="landing" *ngIf="devices | empty | async">
+    no devices
   </div>
+
 </ion-content>

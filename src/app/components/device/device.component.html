@@ -1,0 +1,21 @@
+<ion-toolbar>
+  <ion-buttons slot="start">
+    <ion-button (click)="delete(name)">
+      <ion-icon slot="icon-only" name="close"></ion-icon>
+    </ion-button>
+  </ion-buttons>
+  <ion-title> {{name || 'Custom'}} ({{width}}x{{height}})</ion-title>
+  <ion-buttons slot="end">
+    <ion-button>
+      <ion-icon slot="icon-only" name="phone-landscape"></ion-icon>
+    </ion-button>
+    <ion-button>
+      <ion-icon slot="icon-only" name="camera"></ion-icon>
+    </ion-button>
+    <ion-button>
+      <ion-icon slot="icon-only" name="open"></ion-icon>
+    </ion-button>
+  </ion-buttons>
+</ion-toolbar>
+<iframe frameborder="0" seamless #frame [src]="url | plt : platform | safe" [width]="(width + 14) + 'px'"
+  [height]="height + 'px'"></iframe>

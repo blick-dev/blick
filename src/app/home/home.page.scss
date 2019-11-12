@@ -1,1 +1,30 @@
+ion-range {
+  max-width: 210px;
+}
 
+.url-input {
+  --background: var(--ion-color-light-tint);
+  --padding-bottom: 8px;
+  --padding-end: 4px;
+  --padding-start: 24px;
+  --padding-top: 8px;
+  border-radius: 18px;
+  height: 36px;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.delimiter {
+  height: 24px;
+  width: 2px;
+  background: var(--ion-color-light-tint);
+  margin: 0px 8px;
+}
+
+.landing {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
