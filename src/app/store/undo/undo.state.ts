@@ -1,5 +1,5 @@
-import { RegisterUndoAction, Undo, InitUndoState, Redo } from "./undo.action";
-import { State, StateContext, Action, Store, Selector } from "@ngxs/store";
+import { RegisterUndoAction, Undo, InitUndoState, Redo } from './undo.action';
+import { State, StateContext, Action, Store, Selector } from '@ngxs/store';
 
 export interface History {
   undoLabel: string;
@@ -13,7 +13,7 @@ export interface UndoStateModel {
 }
 
 @State<UndoStateModel>({
-  name: "undo",
+  name: 'undo',
   defaults: {
     max: 20,
     past: [],
@@ -31,14 +31,14 @@ export class UndoState {
 
   @Selector()
   static undoLabel(state: UndoStateModel) {
-    return state.present.undoLabel || "Keine Änderungen";
+    return state.present.undoLabel || 'Keine Änderungen';
   }
 
   @Selector()
   static redoLabel(state: UndoStateModel) {
     return state.future.length > 0
       ? state.future[0].redoLabel
-      : "Keine Änderungen";
+      : 'Keine Änderungen';
   }
 
   @Selector()
