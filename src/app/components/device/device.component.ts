@@ -98,7 +98,7 @@ export class DeviceComponent implements OnInit, OnDestroy, Device {
       'userAgent',
       {
         get: function() {
-          return ios; // customized user agent
+          return agent; // customized user agent
         },
         configurable: true
       }

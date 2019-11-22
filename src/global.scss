@@ -46,3 +46,8 @@ ion-item {
   --background: var(--ion-color-light);
   --color: var(--ion-color-dark);
 }
+
+ion-icon:hover,
+mat-icon:hover {
+  color: var(--ion-color-secondary);
+}
