@@ -1,3 +1,4 @@
+import { WidthPipe } from './../../pipes/width.pipe';
 import {
   Component,
   OnInit,
@@ -20,12 +21,15 @@ import { DeviceComponent } from '../device/device.component';
 export class DevicesComponent implements OnInit, AfterContentInit {
   @ContentChildren(DeviceComponent) devices: QueryList<DeviceComponent>;
   @HostBinding('style.width') get width() {
+    return this.pixelWidth + 'px';
+  }
+  get pixelWidth() {
     const w =
       this.devices && this.devices.length > 0
         ? this.devices
-            .map(d => d.width + this.padding * 2)
-            .reduce((p, c) => p + c + 14) + 'px'
-        : '0';
+            .map(d => this.widthPipe.transform(d) + this.padding * 2)
+            .reduce((p, c) => p + c + 14)
+        : 0;
     return w;
   }
 
@@ -38,7 +42,7 @@ export class DevicesComponent implements OnInit, AfterContentInit {
 
   documents: Observable<Document[]>;
 
-  constructor(public element: ElementRef) {}
+  constructor(public element: ElementRef, private widthPipe: WidthPipe) {}
 
   ngOnInit() {}
 

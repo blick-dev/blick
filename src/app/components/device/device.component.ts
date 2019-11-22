@@ -1,8 +1,8 @@
+import { WidthPipe } from './../../pipes/width.pipe';
+import { Platform } from '@ionic/angular';
 import {
-  Device,
-  DeviceOrientation,
-  DevicePlatform,
-  RemoveDeviceAction
+  RemoveDeviceAction,
+  ToggleDeviceOrientation
 } from './../../store/devices/devices.action';
 import {
   Component,
@@ -13,9 +13,15 @@ import {
   HostBinding,
   OnDestroy
 } from '@angular/core';
-import { fromEvent, Subject, ReplaySubject } from 'rxjs';
+import { fromEvent, Subject, ReplaySubject, Observable } from 'rxjs';
 import { map, tap, first } from 'rxjs/operators';
 import { Dispatch } from '@ngxs-labs/dispatch-decorator';
+import {
+  Device,
+  DeviceOrientation,
+  DevicePlatform
+} from '@store/devices/devices.types';
+import { HeightPipe } from '@pipes/height.pipe';
 
 @Component({
   selector: 'app-device',
@@ -30,40 +36,55 @@ export class DeviceComponent implements OnInit, OnDestroy, Device {
   @Input() height: number;
 
   @Input() url: string;
+  device = this;
 
   document: ReplaySubject<Document> = new ReplaySubject();
   $onDestroy = new Subject();
 
+  _finishedLoading: Observable<Event>;
+
   @HostBinding('style.width')
   get _width() {
-    return `${this.width}px`;
+    return this.widthPipe.transform(this);
   }
 
   @HostBinding('style.height')
   get _height() {
-    return `${this.height + 56}px`;
+    return this.heightPipe.transform(this, 56);
   }
 
   @ViewChild('frame', { static: true }) iframe: ElementRef<HTMLIFrameElement>;
 
-  constructor() {}
+  constructor(
+    private _platform: Platform,
+    private heightPipe: HeightPipe,
+    private widthPipe: WidthPipe
+  ) {}
 
   ngOnInit() {
-    fromEvent(this.iframe.nativeElement, 'load')
-      .pipe(
-        first(),
-        tap(() => this.setUserAgent()),
-        tap(() => this.initTouch()),
-        map<Event, Document>(
-          () => this.iframe.nativeElement.contentWindow.document
-        ),
-        tap<Document>(doc => this.document.next(doc))
-      )
-      .subscribe();
+    this.initDevice();
   }
 
   ngOnDestroy(): void {
     this.$onDestroy.next();
+  }
+
+  initDevice() {
+    this._finishedLoading = fromEvent(this.iframe.nativeElement, 'load');
+
+    if (this._platform.is('electron')) {
+      this._finishedLoading
+        .pipe(
+          first(),
+          tap(() => this.setUserAgent()),
+          tap(() => this.initTouch()),
+          map<Event, Document>(
+            () => this.iframe.nativeElement.contentWindow.document
+          ),
+          tap<Document>(doc => this.document.next(doc))
+        )
+        .subscribe();
+    }
   }
 
   setUserAgent() {
@@ -94,4 +115,8 @@ export class DeviceComponent implements OnInit, OnDestroy, Device {
 
   @Dispatch()
   delete = (device: string) => new RemoveDeviceAction(device);
+
+  @Dispatch()
+  toggleDeviceOrientation = (device: string) =>
+    new ToggleDeviceOrientation(device);
 }

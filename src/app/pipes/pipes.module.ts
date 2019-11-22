@@ -7,16 +7,15 @@ import {
   PendingPipeModule,
   ErrorPipeModule
 } from '@fivethree/async-pipes';
+import { WidthPipe } from './width.pipe';
+import { HeightPipe } from './height.pipe';
+
+const pipes = [SafePipe, PlatformPipe, WidthPipe, HeightPipe];
 
 @NgModule({
-  declarations: [SafePipe, PlatformPipe],
+  declarations: pipes,
   imports: [CommonModule, EmptyPipeModule, PendingPipeModule, ErrorPipeModule],
-  exports: [
-    SafePipe,
-    PlatformPipe,
-    EmptyPipeModule,
-    PendingPipeModule,
-    ErrorPipeModule
-  ]
+  providers: pipes,
+  exports: [EmptyPipeModule, PendingPipeModule, ErrorPipeModule, ...pipes]
 })
 export class PipesModule {}

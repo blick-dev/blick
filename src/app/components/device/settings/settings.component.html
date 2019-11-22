@@ -1,0 +1,65 @@
+<ion-card class="ion-no-margin">
+  <form [formGroup]="settings" (ngSubmit)="onSubmit()">
+    <ion-grid no-padding>
+      <ion-row>
+        <ion-col class="ion-no-padding" size="12">
+          <ion-item>
+            <ion-label position="floating">Name
+            </ion-label>
+            <ion-input required formControlName="name" type="text"></ion-input>
+            <ion-buttons slot="end">
+              <ion-button (click)="updateForm()" matTooltip="revert" *ngIf="changes | async">
+                <ion-icon color="dark" slot="icon-only" name="undo"></ion-icon>
+              </ion-button>
+              <ion-button matTooltip="save changes" *ngIf="changes | async" color="primary" type="submit"
+                [disabled]="settings.invalid">
+                <ion-icon slot="icon-only" name="save"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-item>
+        </ion-col>
+        <ion-col class="ion-no-padding" size="6">
+          <ion-item>
+            <ion-label position="floating">Width
+            </ion-label>
+            <ion-input required formControlName="width" type="number"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col class="ion-no-padding" size="6">
+          <ion-item>
+            <ion-label position="floating">Height
+            </ion-label>
+            <ion-input required formControlName="height" type="number"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <ion-toolbar color="translucent">
+      <ion-buttons slot="start">
+        <ion-button [disabled]="platform.value === 'desktop'" (click)="platform.setValue('desktop')"
+          matTooltip="desktop" class="platform">
+          <ion-icon slot="icon-only" [ngClass]="{active: platform.value === 'desktop'}" name="laptop"></ion-icon>
+        </ion-button>
+        <ion-button [disabled]="platform.value === 'android'" (click)="platform.setValue('android')"
+          matTooltip="android" class="platform">
+          <ion-icon slot="icon-only" [ngClass]="{active: platform.value === 'android'}" name="logo-android">
+          </ion-icon>
+        </ion-button>
+        <ion-button [disabled]="platform.value === 'ios'" (click)="platform.setValue('ios')" matTooltip="ios / safari"
+          class="platform">
+          <ion-icon slot="icon-only" [ngClass]="{active: platform.value === 'ios'}" name="logo-apple"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-buttons slot="end">
+        <ion-button (click)="orientation.setValue('portrait')" [disabled]="orientation.value === 'portrait'">
+          <ion-icon slot="icon-only" [ngClass]="{active: orientation.value === 'portrait'}" name="phone-portrait">
+          </ion-icon>
+        </ion-button>
+        <ion-button (click)="orientation.setValue('landscape')" [disabled]="orientation.value === 'landscape'">
+          <ion-icon slot="icon-only" [ngClass]="{active: orientation.value === 'landscape'}" name="phone-landscape">
+          </ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </form>
+</ion-card>

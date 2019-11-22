@@ -1,3 +1,4 @@
+import { UpdateTheme } from './../store/appearance/appearance.action';
 import { DevicesState } from './../store/devices/devices.state';
 import { DevicesComponent } from './../components/devices/devices.component';
 import {
@@ -7,8 +8,8 @@ import {
   OnDestroy,
   AfterViewInit
 } from '@angular/core';
-import { IonContent } from '@ionic/angular';
-import { from, fromEvent, Subject, Observable } from 'rxjs';
+import { IonContent, Platform, IonRange } from '@ionic/angular';
+import { from, fromEvent, Subject, Observable, merge } from 'rxjs';
 import {
   filter,
   map,
@@ -18,12 +19,19 @@ import {
   mergeMap,
   tap,
   startWith,
-  reduce,
-  scan
+  scan,
+  skipWhile
 } from 'rxjs/operators';
 import { Select } from '@ngxs/store';
-import { Device } from '@store/devices/devices.action';
 import { ActivatedRoute } from '@angular/router';
+import { Device, DeviceOrientation } from '@store/devices/devices.types';
+import { Dispatch } from '@ngxs-labs/dispatch-decorator';
+import {
+  AddDeviceAction,
+  ToggleOrientation
+} from '@store/devices/devices.action';
+import { Theme } from '@store/appearance/appearance.types';
+import { AppearanceState } from '@store/appearance/appearance.state';
 
 @Component({
   selector: 'app-home',
@@ -32,20 +40,28 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class HomePage implements OnDestroy, AfterViewInit {
   url: Observable<string>;
-  zoom: number = 60;
+  zoom = 60;
 
   @Select(DevicesState.devices)
   devices: Observable<Device[]>;
+  @Select(DevicesState.orientation)
+  orientation: Observable<DeviceOrientation>;
+  @Select(AppearanceState.theme)
+  theme: Observable<Theme>;
 
   @ViewChild(IonContent, { static: true })
   content: IonContent;
   @ViewChild('content', { static: true, read: ElementRef }) el: ElementRef;
   @ViewChild(DevicesComponent, { static: true })
   devicesComponent: DevicesComponent;
+  @ViewChild('scrollRange', { static: true })
+  scrollRange: IonRange;
+  @ViewChild('zoomRange', { static: true })
+  zoomRange: IonRange;
 
   onDestroy$ = new Subject();
 
-  constructor(private activeRoute: ActivatedRoute) {
+  constructor(private activeRoute: ActivatedRoute, private platform: Platform) {
     this.url = this.activeRoute.queryParams.pipe(
       map(params =>
         params.url
@@ -105,16 +121,16 @@ export class HomePage implements OnDestroy, AfterViewInit {
       )
       .subscribe();
 
-    fromEvent<WheelEvent>(this.el.nativeElement, 'mousewheel', {
-      passive: false,
-      capture: true
-    })
-      .pipe(
-        filter(e => !e.ctrlKey),
-        map(event => ({ posX: event.deltaX * -2, posY: event.deltaY * -2 })),
-        takeUntil(this.onDestroy$)
-      )
-      .subscribe();
+    // fromEvent<WheelEvent>(this.el.nativeElement, 'mousewheel', {
+    //   passive: false,
+    //   capture: true
+    // })
+    //   .pipe(
+    //     filter(e => !e.ctrlKey),
+    //     map(event => ({ posX: event.deltaX * -2, posY: event.deltaY * -2 })),
+    //     takeUntil(this.onDestroy$)
+    //   )
+    //   .subscribe();
   }
 
   setupDrag() {
@@ -169,4 +185,19 @@ export class HomePage implements OnDestroy, AfterViewInit {
       )
       .subscribe();
   }
+
+  @Dispatch()
+  addDevice = () =>
+    new AddDeviceAction({
+      name: 'Device',
+      width: 411,
+      height: 823,
+      orientation: 'portrait',
+      platform: 'android'
+    });
+
+  @Dispatch()
+  toggleOrientation = () => new ToggleOrientation();
+  @Dispatch()
+  setTheme = (theme: Theme) => new UpdateTheme(theme);
 }

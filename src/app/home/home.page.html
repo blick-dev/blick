@@ -1,37 +1,51 @@
 <ion-header no-border>
-  <ion-toolbar class="url-bar">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-input class="url-input" [value]="url | async" type="url" placeholder="URL"></ion-input>
-    <ion-range [matTooltip]="'zoom level ' + zoom + '%'" [(ngModel)]="zoom" slot="end" color="primary" min="20"
-      max="140" step="1" ticks="true" [value]="zoom" color="primary">
+  <ion-toolbar class="url-bar ion-padding-horizontal">
+    <ion-input class="url-input" [value]="url | async" type="url" placeholder="URL">
+    </ion-input>
+    <ion-range #zoomRange [matTooltip]="'zoom level ' + zoom + '%'" [(ngModel)]="zoom" slot="end" color="primary"
+      min="20" max="140" step="1" ticks="true" [value]="zoom" color="primary">
     </ion-range>
     <ion-buttons slot="end">
-      <ion-button matTooltip="darkmode">
-        <ion-icon slot="icon-only" name="contrast"></ion-icon>
-      </ion-button>
       <div class="delimiter"></div>
-      <ion-button matTooltip="show common browser sizes" class="platform">
-        <ion-icon slot="icon-only" color="primary" name="laptop"></ion-icon>
-      </ion-button>
-      <ion-button matTooltip="show android devices" class="platform">
-        <ion-icon slot="icon-only" name="logo-android"></ion-icon>
-      </ion-button>
-      <ion-button matTooltip="show ios devices" class="platform">
-        <ion-icon slot="icon-only" name="logo-apple"></ion-icon>
+      <ion-button (click)="setTheme(t === 'dark' ? 'light' : 'dark')" *ngIf="theme | async as t"
+        [matTooltip]="t === 'dark' ? 'lightmode' : 'darkmode'">
+        <ion-icon [ngClass]="[t]" slot="icon-only" name="contrast"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content #content scrollX="true">
+<ion-content #content scrollX="true" [scrollEvents]="true">
   <app-devices [zoom]="zoom / 100">
     <app-device *ngFor="let device of devices | async" [width]="device.width" [height]="device.height"
       [name]="device.name" [platform]="device.platform" [orientation]="device.orientation" [url]="url | async">
     </app-device>
   </app-devices>
+
   <div class="landing" *ngIf="devices | empty | async">
-    no devices
+    <div>
+      <img class="no-devices" src="assets/no_devices.svg">
+      <ion-button fill="outline" shape="round" (click)="addDevice()">
+        <mat-icon slot="start">devices</mat-icon>
+        <ion-label class="ion-padding-start">add new device</ion-label>
+      </ion-button>
+    </div>
   </div>
 
 </ion-content>
+
+<ion-footer translucent="true">
+  <ion-toolbar ion-padding-horizontal>
+    <ion-buttons slot="start">
+      <ion-button (click)="addDevice()" matTooltip="add device">
+        <mat-icon>devices</mat-icon>
+        <ion-icon slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button (click)="toggleOrientation()" *ngIf="(orientation | async) as o"
+        [matTooltip]="o === 'portrait' ? 'switch to landscape':'switch to portrait'">
+        <mat-icon>screen_rotation</mat-icon>
+        <ion-icon slot="icon-only"></ion-icon>
+      </ion-button>
+      <div class="delimiter"></div>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

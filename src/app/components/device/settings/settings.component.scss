@@ -1,0 +1,13 @@
+::ng-deep .popover-edit-device {
+  ion-card {
+    --background: var(--ion-color-light);
+  }
+}
+
+ion-icon.active {
+  color: var(--ion-color-secondary);
+}
+
+ion-item {
+  --min-height: 62px;
+}

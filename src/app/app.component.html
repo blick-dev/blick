@@ -1,29 +1,3 @@
-<ion-split-pane>
-  <ion-menu #menu side="start" type="overlay" [fivCollapseMenu]="false" [minWidth]="52" [maxWidth]="52">
-    <ion-header no-border>
-      <ion-toolbar>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content class="side-menu">
-      <ion-buttons>
-        <ion-button (click)="addDevice()" matTooltipPosition="right" matTooltip="Add Device" fill="clear"
-          color="primary">
-          <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-      <ion-buttons>
-        <ion-button matTooltipPosition="right" matTooltip="Change Orientation" fill="clear">
-          <ion-icon slot="icon-only" name="phone-landscape">
-          </ion-icon>
-        </ion-button>
-      </ion-buttons>
-      <ion-buttons>
-        <ion-button matTooltip="Disable Touch" fill="clear">
-          <ion-icon slot="icon-only" name="finger-print"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-
-    </ion-content>
-  </ion-menu>
-  <ion-router-outlet main></ion-router-outlet>
-</ion-split-pane>
+<ion-app>
+  <ion-router-outlet></ion-router-outlet>
+</ion-app>

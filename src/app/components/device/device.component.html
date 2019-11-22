@@ -1,22 +1,37 @@
 <ion-toolbar>
   <ion-buttons slot="start">
-    <ion-button (click)="delete(name)">
+    <ion-button matTooltip="delete device" (click)="delete(name)">
       <ion-icon slot="icon-only" name="close"></ion-icon>
     </ion-button>
   </ion-buttons>
-  <ion-title> {{name || 'Custom'}} ({{width}}x{{height}})</ion-title>
+  <ion-button matTooltip="device settings" fill="clear" color="dark" (click)="edit.open($event)"> {{name || 'Custom'}}
+    ({{width}}x{{height}})
+  </ion-button>
   <ion-buttons slot="end">
-    <ion-button>
-      <ion-icon slot="icon-only" name="phone-landscape"></ion-icon>
+    <ion-button [matTooltip]="orientation === 'portrait' ? 'switch to landscape' : 'switch to portrait'"
+      (click)="toggleDeviceOrientation(name)">
+      <mat-icon>screen_rotation</mat-icon>
+      <ion-icon slot="icon-only"></ion-icon>
     </ion-button>
-    <ion-button>
-      <ion-icon slot="icon-only" name="camera"></ion-icon>
-    </ion-button>
-    <ion-button>
-      <ion-icon slot="icon-only" name="open"></ion-icon>
-    </ion-button>
+    <span matTooltip="screenshots coming soon">
+      <ion-button [disabled]="true" matTooltip="take screenshot">
+        <ion-icon slot="icon-only" name="camera"></ion-icon>
+      </ion-button>
+    </span>
+    <span matTooltip="coming soon">
+      <ion-button [disabled]="true" matTooltip="open in separate window">
+        <ion-icon slot="icon-only" name="open"></ion-icon>
+      </ion-button>
+    </span>
+
+
   </ion-buttons>
 </ion-toolbar>
-<iframe frameborder="0" seamless #frame [src]="url | plt : platform | safe" [width]="(width + 14) + 'px'"
-  [height]="height + 'px'"></iframe>
-<div class="no-touch"></div>
+<iframe frameborder="0" #frame [src]="url | plt : platform | safe" [width]="device | width"
+  [height]="device | height"></iframe>
+<fiv-spinner *ngIf="_finishedLoading | pending | async" [circleRadius]="16" [diameter]="40" [strokeWidth]="4"
+  [mode]="'indeterminate'"></fiv-spinner>
+<!-- <div class="no-touch"></div>  -->
+<fiv-popover [width]="340" [classes]="['popover-edit-device']" #edit>
+  <app-device-settings (close)="edit.close()" [device]="device"></app-device-settings>
+</fiv-popover>
