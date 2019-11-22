@@ -108,15 +108,16 @@ export class HomePage implements OnDestroy, AfterViewInit {
   }
 
   setupPinch() {
-    fromEvent<WheelEvent>(this.el.nativeElement, 'mousewheel', {
+    fromEvent<WheelEvent>(window, 'mousewheel', {
       passive: false,
       capture: true
     })
       .pipe(
         filter(e => !!e.ctrlKey),
+        tap(event => event.preventDefault()),
         map(event => -1 * event.deltaY),
         startWith(60),
-        scan((curr, value) => Math.min(140, Math.max(curr + value, 20))),
+        scan((curr, value) => Math.min(180, Math.max(curr + value, 20))),
         tap(zoom => (this.zoom = zoom)),
         takeUntil(this.onDestroy$)
       )
