@@ -1,7 +1,7 @@
-import { NgxsConfig } from "@ngxs/store/src/symbols";
-import { NgxsDevtoolsOptions } from "@ngxs/devtools-plugin/src/symbols";
-import { NgxsLoggerPluginOptions } from "@ngxs/logger-plugin/src/symbols";
-import { environment } from "@environments/environment";
+import { NgxsConfig } from '@ngxs/store/src/symbols';
+import { NgxsDevtoolsOptions } from '@ngxs/devtools-plugin/src/symbols';
+import { NgxsLoggerPluginOptions } from '@ngxs/logger-plugin/src/symbols';
+import { environment } from '@environments/environment';
 
 export const OPTIONS_CONFIG: Partial<NgxsConfig> = {
   /**
