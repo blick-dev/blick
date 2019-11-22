@@ -4,7 +4,8 @@ import {
   RemoveDeviceAction,
   ToggleOrientation,
   ToggleDeviceOrientation,
-  UpdateDeviceAction
+  UpdateDeviceAction,
+  NavigateURL
 } from './devices.action';
 import { Device, DeviceOrientation } from './devices.types';
 import { patch, updateItem } from '@ngxs/store/operators';
@@ -12,11 +13,13 @@ import { patch, updateItem } from '@ngxs/store/operators';
 export interface DevicesStateModel {
   devices: Device[];
   orientation: DeviceOrientation;
+  url: string;
 }
 
 @State<DevicesStateModel>({
   name: 'devices',
   defaults: {
+    url: 'https://fivethree-team.github.io/ionic-4-components/',
     orientation: 'portrait',
     devices: [
       {
@@ -60,6 +63,10 @@ export class DevicesState {
   @Selector()
   static orientation(state: DevicesStateModel) {
     return state.orientation;
+  }
+  @Selector()
+  static url(state: DevicesStateModel) {
+    return state.url;
   }
 
   @Action(AddDeviceAction)
@@ -149,5 +156,10 @@ export class DevicesState {
         )
       })
     );
+  }
+
+  @Action(NavigateURL)
+  navigate(ctx: StateContext<DevicesStateModel>, action: NavigateURL) {
+    ctx.patchState({ url: action.url });
   }
 }

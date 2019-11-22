@@ -1,3 +1,4 @@
+import { LogPipe } from './log.pipe';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SafePipe } from './safe.pipe';
@@ -10,7 +11,7 @@ import {
 import { WidthPipe } from './width.pipe';
 import { HeightPipe } from './height.pipe';
 
-const pipes = [SafePipe, PlatformPipe, WidthPipe, HeightPipe];
+const pipes = [SafePipe, PlatformPipe, WidthPipe, HeightPipe, LogPipe];
 
 @NgModule({
   declarations: pipes,

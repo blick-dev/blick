@@ -29,3 +29,7 @@ export class ToggleDeviceOrientation {
     public readonly orientation?: DeviceOrientation
   ) {}
 }
+export class NavigateURL {
+  static readonly type = '[Devices] NavigateURL]';
+  constructor(public readonly url: string) {}
+}

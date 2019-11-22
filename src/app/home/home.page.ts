@@ -1,3 +1,4 @@
+import { NavigateURL } from './../store/devices/devices.action';
 import { UpdateTheme } from './../store/appearance/appearance.action';
 import { DevicesState } from './../store/devices/devices.state';
 import { DevicesComponent } from './../components/devices/devices.component';
@@ -8,7 +9,7 @@ import {
   OnDestroy,
   AfterViewInit
 } from '@angular/core';
-import { IonContent, Platform, IonRange } from '@ionic/angular';
+import { IonContent, Platform, IonRange, IonInput } from '@ionic/angular';
 import { from, fromEvent, Subject, Observable, merge } from 'rxjs';
 import {
   filter,
@@ -20,7 +21,7 @@ import {
   tap,
   startWith,
   scan,
-  skipWhile
+  debounceTime
 } from 'rxjs/operators';
 import { Select } from '@ngxs/store';
 import { ActivatedRoute } from '@angular/router';
@@ -39,7 +40,8 @@ import { AppearanceState } from '@store/appearance/appearance.state';
   styleUrls: ['home.page.scss']
 })
 export class HomePage implements OnDestroy, AfterViewInit {
-  url: Observable<string>;
+  @Select(DevicesState.url)
+  url$: Observable<string>;
   zoom = 60;
 
   @Select(DevicesState.devices)
@@ -54,21 +56,20 @@ export class HomePage implements OnDestroy, AfterViewInit {
   @ViewChild('content', { static: true, read: ElementRef }) el: ElementRef;
   @ViewChild(DevicesComponent, { static: true })
   devicesComponent: DevicesComponent;
-  @ViewChild('scrollRange', { static: true })
-  scrollRange: IonRange;
   @ViewChild('zoomRange', { static: true })
   zoomRange: IonRange;
 
   onDestroy$ = new Subject();
 
   constructor(private activeRoute: ActivatedRoute, private platform: Platform) {
-    this.url = this.activeRoute.queryParams.pipe(
-      map(params =>
-        params.url
-          ? params.url
-          : 'https://fivethree-team.github.io/ionic-4-components/'
+    this.activeRoute.queryParams
+      .pipe(
+        filter(params => !!params.url),
+        tap(params => console.log(params)),
+        tap(params => this.navigate(params.url)),
+        takeUntil(this.onDestroy$)
       )
-    );
+      .subscribe();
   }
 
   ngOnDestroy(): void {
@@ -200,4 +201,7 @@ export class HomePage implements OnDestroy, AfterViewInit {
   toggleOrientation = () => new ToggleOrientation();
   @Dispatch()
   setTheme = (theme: Theme) => new UpdateTheme(theme);
+
+  @Dispatch()
+  navigate = (url: string) => new NavigateURL(url);
 }

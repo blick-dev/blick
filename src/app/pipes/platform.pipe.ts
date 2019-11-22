@@ -6,6 +6,9 @@ import { DevicePlatform } from '@store/devices/devices.types';
 })
 export class PlatformPipe implements PipeTransform {
   transform(value: string, platform: DevicePlatform): any {
+    if (!value) {
+      return '';
+    }
     if ('ios' === platform) {
       return value.indexOf('?') > -1
         ? `${value}&ionic:mode=ios`
