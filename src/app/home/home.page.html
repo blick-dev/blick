@@ -3,8 +3,9 @@
     <ion-input #url (keydown.enter)="navigate(url.value)" class="url-input" [value]="(url$ | async)" type="url"
       placeholder="URL">
     </ion-input>
-    <ion-range #zoomRange [matTooltip]="'zoom level ' + zoom + '%'" [(ngModel)]="zoom" slot="end" color="primary"
-      min="20" max="180" step="1" ticks="true" [value]="zoom" color="primary">
+    <ion-range (ionChange)="setZoom($event.detail.value)" #zoomRange
+      [matTooltip]="'zoom level ' + zoom.toFixed(0) + '%'" slot="end" color="primary" min="20" max="180" step="1"
+      ticks="true" [value]="zoom" color="primary">
     </ion-range>
     <ion-buttons slot="end">
       <div class="delimiter"></div>
@@ -15,10 +16,9 @@
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content #content scrollX="true" [scrollEvents]="true">
-  <app-devices [zoom]="zoom / 100">
-    <app-device *ngFor="let device of devices | async" [width]="device.width" [height]="device.height"
-      [name]="device.name" [platform]="device.platform" [orientation]="device.orientation" [url]="url$ | async">
+<ion-content (click)="clearFocus()" #content scrollX="true" [scrollEvents]="true">
+  <app-devices>
+    <app-device *ngFor="let device of devices | async" [device]="device" [url]="url$ | async">
     </app-device>
   </app-devices>
 

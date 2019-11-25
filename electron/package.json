@@ -8,11 +8,12 @@
   },
   "dependencies": {
     "@capacitor/electron": "~1.3.0",
-    "electron-is-dev": "^1.1.0"
+    "electron": "~7.1.2",
+    "electron-is-dev": "^1.1.0",
+    "puppeteer-core": "~2.0.0",
+    "puppeteer-in-electron": "~1.0.7"
   },
-  "devDependencies": {
-    "electron": "^4.0.0"
-  },
+  "devDependencies": {},
   "keywords": [
     "capacitor",
     "electron"

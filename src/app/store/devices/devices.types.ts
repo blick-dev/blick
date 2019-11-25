@@ -7,3 +7,8 @@ export interface Device {
   orientation: DeviceOrientation;
   platform: DevicePlatform;
 }
+
+export interface DeviceOrder {
+  order: number;
+  device: string;
+}

@@ -6,9 +6,9 @@ import { Device } from '@store/devices/devices.types';
   pure: false
 })
 export class WidthPipe implements PipeTransform {
-  transform(device: Device, offset = 0): string {
+  transform(device: Device, offset = 0): number {
     const width =
       device.orientation === 'portrait' ? device.width : device.height;
-    return `${width + offset}px`;
+    return width + offset;
   }
 }

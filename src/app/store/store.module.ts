@@ -15,6 +15,7 @@ import { NgxsStoragePluginModule } from '@ngxs/storage-plugin';
 import { states } from './app.state';
 import { NgxsNotificationPluginModule } from '@fivethree/ngxs-notification-plugin';
 import { NotificationService } from '@services/notification.service';
+import { NgxsSelectSnapshotModule } from '@ngxs-labs/select-snapshot';
 
 @NgModule({
   imports: [
@@ -23,6 +24,7 @@ import { NotificationService } from '@services/notification.service';
     NgxsModule.forRoot(states, OPTIONS_CONFIG),
     NgxsIonicRouterPluginModule.forRoot(),
     NgxsNotificationPluginModule.forRoot(NotificationService),
+    NgxsSelectSnapshotModule.forRoot(),
     NgxsDispatchPluginModule.forRoot(),
     NgxsStoragePluginModule.forRoot(),
     NgxsReduxDevtoolsPluginModule.forRoot(DEVTOOLS_REDUX_CONFIG),

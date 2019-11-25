@@ -4,6 +4,7 @@ app.commandLine.appendSwitch('touch-events', 'enabled');
 const path = require('path');
 
 let mainWindow = null;
+let browser;
 
 async function createWindow() {
   // Define our main window size
@@ -28,7 +29,7 @@ async function createWindow() {
   });
 
   try {
-    mainWindow.webContents.debugger.attach('1.2');
+    mainWindow.webContents.debugger.attach('1.3');
   } catch (err) {
     console.log('error attaching debugger', err);
   }

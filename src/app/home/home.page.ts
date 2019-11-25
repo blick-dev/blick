@@ -1,5 +1,8 @@
-import { NavigateURL } from './../store/devices/devices.action';
-import { UpdateTheme } from './../store/appearance/appearance.action';
+import { NavigateURL, ClearFocus } from './../store/devices/devices.action';
+import {
+  UpdateTheme,
+  UpdateZoom
+} from './../store/appearance/appearance.action';
 import { DevicesState } from './../store/devices/devices.state';
 import { DevicesComponent } from './../components/devices/devices.component';
 import {
@@ -9,8 +12,8 @@ import {
   OnDestroy,
   AfterViewInit
 } from '@angular/core';
-import { IonContent, Platform, IonRange, IonInput } from '@ionic/angular';
-import { from, fromEvent, Subject, Observable, merge } from 'rxjs';
+import { IonContent, Platform } from '@ionic/angular';
+import { from, fromEvent, Subject, Observable } from 'rxjs';
 import {
   filter,
   map,
@@ -33,6 +36,8 @@ import {
 } from '@store/devices/devices.action';
 import { Theme } from '@store/appearance/appearance.types';
 import { AppearanceState } from '@store/appearance/appearance.state';
+import { SelectSnapshot } from '@ngxs-labs/select-snapshot';
+import { Mouse } from 'puppeteer';
 
 @Component({
   selector: 'app-home',
@@ -42,30 +47,28 @@ import { AppearanceState } from '@store/appearance/appearance.state';
 export class HomePage implements OnDestroy, AfterViewInit {
   @Select(DevicesState.url)
   url$: Observable<string>;
-  zoom = 60;
-
   @Select(DevicesState.devices)
   devices: Observable<Device[]>;
   @Select(DevicesState.orientation)
   orientation: Observable<DeviceOrientation>;
+
   @Select(AppearanceState.theme)
   theme: Observable<Theme>;
+  @SelectSnapshot(AppearanceState.zoom)
+  zoom: number;
 
   @ViewChild(IonContent, { static: true })
   content: IonContent;
   @ViewChild('content', { static: true, read: ElementRef }) el: ElementRef;
   @ViewChild(DevicesComponent, { static: true })
   devicesComponent: DevicesComponent;
-  @ViewChild('zoomRange', { static: true })
-  zoomRange: IonRange;
 
   onDestroy$ = new Subject();
 
-  constructor(private activeRoute: ActivatedRoute, private platform: Platform) {
+  constructor(private activeRoute: ActivatedRoute) {
     this.activeRoute.queryParams
       .pipe(
         filter(params => !!params.url),
-        tap(params => console.log(params)),
         tap(params => this.navigate(params.url)),
         takeUntil(this.onDestroy$)
       )
@@ -115,24 +118,14 @@ export class HomePage implements OnDestroy, AfterViewInit {
       .pipe(
         filter(e => !!e.ctrlKey),
         tap(event => event.preventDefault()),
+        // tap(event => this.setTransformOrigin(event)),
         map(event => -1 * event.deltaY),
-        startWith(60),
+        startWith(this.zoom),
         scan((curr, value) => Math.min(180, Math.max(curr + value, 20))),
-        tap(zoom => (this.zoom = zoom)),
+        tap(this.setZoom),
         takeUntil(this.onDestroy$)
       )
       .subscribe();
-
-    // fromEvent<WheelEvent>(this.el.nativeElement, 'mousewheel', {
-    //   passive: false,
-    //   capture: true
-    // })
-    //   .pipe(
-    //     filter(e => !e.ctrlKey),
-    //     map(event => ({ posX: event.deltaX * -2, posY: event.deltaY * -2 })),
-    //     takeUntil(this.onDestroy$)
-    //   )
-    //   .subscribe();
   }
 
   setupDrag() {
@@ -151,8 +144,8 @@ export class HomePage implements OnDestroy, AfterViewInit {
     const walk = (event: [MouseEvent, HTMLElement]) => {
       const x = event[0].pageX - event[1].offsetLeft;
       const y = event[0].pageY - event[1].offsetTop;
-      const walkX = (x - startX) * 2.6;
-      const walkY = (y - startY) * 2.6;
+      const walkX = (x - startX) * 2.8;
+      const walkY = (y - startY) * 2.8;
       event[1].scrollLeft = scrollLeft - walkX;
       event[1].scrollTop = scrollTop - walkY;
     };
@@ -202,7 +195,12 @@ export class HomePage implements OnDestroy, AfterViewInit {
   toggleOrientation = () => new ToggleOrientation();
   @Dispatch()
   setTheme = (theme: Theme) => new UpdateTheme(theme);
+  @Dispatch()
+  setZoom = (zoom: number) => new UpdateZoom(zoom);
 
   @Dispatch()
   navigate = (url: string) => new NavigateURL(url);
+
+  @Dispatch()
+  clearFocus = () => new ClearFocus();
 }

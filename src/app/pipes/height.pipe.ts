@@ -5,9 +5,9 @@ import { Device } from '@store/devices/devices.types';
   name: 'height'
 })
 export class HeightPipe implements PipeTransform {
-  transform(device: Device, offset = 0): string {
+  transform(device: Device, offset = 0): number {
     const height =
       device.orientation === 'portrait' ? device.height : device.width;
-    return `${height + offset}px`;
+    return height + offset;
   }
 }

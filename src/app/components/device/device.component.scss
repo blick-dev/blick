@@ -1,9 +1,21 @@
 :host {
   overflow: hidden;
-  display: inline-block;
-  position: relative;
-  margin: 16px;
+  position: absolute;
   background: var(--ion-color-light-shade);
+  transition: box-shadow 160ms ease, opacity 160ms ease;
+  box-shadow: 0;
+}
+
+:host.focus {
+  box-shadow: 0px 4px 28px rgba(var(--ion-color-dark-rgba));
+}
+
+:host.drag {
+  box-shadow: 0px 4px 28px rgba(var(--ion-color-dark-rgba));
+  opacity: 0.94;
+}
+:host.no-drag {
+  transition: all 160ms ease;
 }
 
 iframe:hover {
@@ -14,10 +26,12 @@ iframe:hover {
   position: absolute;
   height: 100%;
   width: 100%;
-  touch-action: none;
-  user-select: none;
   top: 0;
   left: 0;
+}
+
+.no-touch.hidden {
+  display: none;
 }
 
 fiv-spinner {

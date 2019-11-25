@@ -98,7 +98,9 @@ export class DeviceSettingsComponent implements OnInit {
       orientation: this.device.orientation,
       platform: this.device.platform
     };
-    const updated: Device = { ...this.settings.value };
+    const updated: Device = {
+      ...this.settings.value
+    };
     this.update({ old, updated });
     this.close.emit();
   }

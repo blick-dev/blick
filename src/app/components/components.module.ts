@@ -8,6 +8,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FivPopoverModule, FivSpinnerModule } from '@fivethree/core';
 import { DeviceSettingsComponent } from './device/settings/settings.component';
+import { AnimationsModule } from '@fivethree/ngx-rxjs-animations';
 
 @NgModule({
   declarations: [DeviceComponent, DevicesComponent, DeviceSettingsComponent],
@@ -20,7 +21,8 @@ import { DeviceSettingsComponent } from './device/settings/settings.component';
     FivPopoverModule,
     FormsModule,
     ReactiveFormsModule,
-    FivSpinnerModule
+    FivSpinnerModule,
+    AnimationsModule
   ],
   exports: [
     DeviceComponent,

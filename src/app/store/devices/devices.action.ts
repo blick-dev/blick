@@ -1,8 +1,15 @@
-import { Device, DeviceOrientation } from './devices.types';
+import { Device, DeviceOrientation, DevicePlatform } from './devices.types';
 
+export interface AddDevicePayload {
+  width: number;
+  height: number;
+  name: string;
+  orientation: DeviceOrientation;
+  platform: DevicePlatform;
+}
 export class AddDeviceAction {
   static readonly type = '[Devices] AddDeviceAction]';
-  constructor(public readonly payload: Device) {}
+  constructor(public readonly payload: AddDevicePayload) {}
 }
 
 export interface UpdateDevicePayload {
@@ -13,10 +20,32 @@ export class UpdateDeviceAction {
   static readonly type = '[Devices] UpdateDeviceAction]';
   constructor(public readonly payload: UpdateDevicePayload) {}
 }
-
 export class RemoveDeviceAction {
   static readonly type = '[Devices] RemoveDeviceAction]';
   constructor(public readonly device: string) {}
+}
+export class FocusDevice {
+  static readonly type = '[Devices] FocusDevice]';
+  constructor(public readonly device: Device) {}
+}
+export class ClearFocus {
+  static readonly type = '[Devices] ClearFocus]';
+  constructor() {}
+}
+export class DragDevice {
+  static readonly type = '[Devices] DragDevice]';
+  constructor(public readonly device: Device) {}
+}
+export class ClearDrag {
+  static readonly type = '[Devices] ClearDrag]';
+  constructor() {}
+}
+export class SwapAction {
+  static readonly type = '[Devices] SwapAction]';
+  constructor(
+    public readonly drag: Device,
+    public readonly overlayed: Device[]
+  ) {}
 }
 export class ToggleOrientation {
   static readonly type = '[Devices] ToggleOrientation]';
