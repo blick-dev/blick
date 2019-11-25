@@ -40,13 +40,7 @@ export class ClearDrag {
   static readonly type = '[Devices] ClearDrag]';
   constructor() {}
 }
-export class SwapAction {
-  static readonly type = '[Devices] SwapAction]';
-  constructor(
-    public readonly drag: Device,
-    public readonly overlayed: Device[]
-  ) {}
-}
+
 export class ToggleOrientation {
   static readonly type = '[Devices] ToggleOrientation]';
   constructor(public readonly orientation?: DeviceOrientation) {}

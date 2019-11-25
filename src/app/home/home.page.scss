@@ -34,3 +34,10 @@ ion-content {
     width: 160px;
   }
 }
+
+::ng-deep .popover-appearance {
+  ion-card {
+    --background: var(--ion-color-light);
+    --color: var(--ion-color-dark);
+  }
+}

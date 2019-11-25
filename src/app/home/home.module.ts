@@ -1,3 +1,5 @@
+import { GesturesDirective } from './gestures.directive';
+import { FivPopoverModule } from '@fivethree/core';
 import { ComponentsModule } from './../components/components.module';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -16,6 +18,7 @@ import { MatTooltipModule, MatIconModule } from '@angular/material';
     ComponentsModule,
     MatTooltipModule,
     MatIconModule,
+    FivPopoverModule,
     RouterModule.forChild([
       {
         path: '',
@@ -23,6 +26,6 @@ import { MatTooltipModule, MatIconModule } from '@angular/material';
       }
     ])
   ],
-  declarations: [HomePage]
+  declarations: [HomePage, GesturesDirective]
 })
 export class HomePageModule {}

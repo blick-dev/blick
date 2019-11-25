@@ -1,10 +1,9 @@
 import { DevicesState } from '@store/devices/devices.state';
 import { WidthPipe } from './../../pipes/width.pipe';
-import { Platform, IonContent } from '@ionic/angular';
+import { Platform } from '@ionic/angular';
 import {
   RemoveDeviceAction,
-  ToggleDeviceOrientation,
-  FocusDevice
+  ToggleDeviceOrientation
 } from './../../store/devices/devices.action';
 import {
   Component,
@@ -13,43 +12,16 @@ import {
   ViewChild,
   ElementRef,
   HostBinding,
-  OnDestroy,
-  Host
+  OnDestroy
 } from '@angular/core';
-import {
-  fromEvent,
-  Subject,
-  ReplaySubject,
-  Observable,
-  merge,
-  from
-} from 'rxjs';
-import {
-  map,
-  tap,
-  first,
-  takeUntil,
-  withLatestFrom,
-  flatMap,
-  repeat,
-  filter
-} from 'rxjs/operators';
+import { fromEvent, Subject, ReplaySubject, Observable } from 'rxjs';
+import { map, tap, first } from 'rxjs/operators';
 import { Dispatch } from '@ngxs-labs/dispatch-decorator';
 import { Device } from '@store/devices/devices.types';
 import { HeightPipe } from '@pipes/height.pipe';
 import { SelectSnapshot } from '@ngxs-labs/select-snapshot';
 import { AppearanceState } from '@store/appearance/appearance.state';
 import { Store } from '@ngxs/store';
-
-export interface DeviceDragEvent {
-  left: number;
-  device: DeviceComponent;
-}
-export interface DeviceDragEndEvent {
-  left: number;
-  device: DeviceComponent;
-  order: number;
-}
 
 @Component({
   selector: 'app-device',
@@ -65,9 +37,6 @@ export class DeviceComponent implements OnInit, OnDestroy {
 
   onDestroy$ = new Subject();
 
-  drag$: Observable<DeviceDragEvent>;
-  dragStart$: Observable<DeviceDragEvent>;
-  dragEnd$: Observable<DeviceDragEndEvent>;
   click$: Observable<MouseEvent>;
 
   @SelectSnapshot(AppearanceState.padding)
@@ -87,7 +56,7 @@ export class DeviceComponent implements OnInit, OnDestroy {
     if (this.drag && this.drag.name === this.device.name) {
       return parseInt(this.element.nativeElement.style.left, 10) || 0 + 'px';
     }
-    const order = this.store.selectSnapshot(DevicesState.order(this.device));
+    const order = this.store.selectSnapshot(AppearanceState.order(this.device));
     const before = this.store.selectSnapshot(DevicesState.before(order));
     const width = before
       .map(b => this.widthPipe.transform(b))
@@ -96,16 +65,34 @@ export class DeviceComponent implements OnInit, OnDestroy {
     return width + padding + 'px';
   }
 
-  @HostBinding('style.width')
-  get _width() {
-    return this.widthPipe.transform(this.device) + 'px';
+  @HostBinding('style.top')
+  get _top() {
+    if (!this.device) {
+      return;
+    }
+    if (this.drag && this.drag.name === this.device.name) {
+      return parseInt(this.element.nativeElement.style.top, 10) || 0 + 'px';
+    }
+    // const order = this.store.selectSnapshot(DevicesState.order(this.device));
+    // const before = this.store.selectSnapshot(DevicesState.before(order));
+    // const width = before
+    //   .map(b => this.widthPipe.transform(b))
+    //   .reduce((a, b) => a + b, 0);
+    // const padding = before.length * this.padding;
+    return 0 + 'px';
   }
+
   @HostBinding('style.z-index')
   get _zIndex() {
     if (this.drag && this.drag.name === this.device.name) {
       return 100;
     }
-    return this.store.selectSnapshot(DevicesState.order(this.device));
+    return this.store.selectSnapshot(AppearanceState.order(this.device));
+  }
+
+  @HostBinding('style.width')
+  get _width() {
+    return this.widthPipe.transform(this.device) + 'px';
   }
   @HostBinding('style.height')
   get _height() {
@@ -139,13 +126,11 @@ export class DeviceComponent implements OnInit, OnDestroy {
     private heightPipe: HeightPipe,
     private widthPipe: WidthPipe,
     public element: ElementRef,
-    private store: Store,
-    @Host() private content: IonContent
+    private store: Store
   ) {}
 
   ngOnInit() {
     this.initDevice();
-    this.setupDragDrop();
   }
 
   ngOnDestroy(): void {
@@ -169,96 +154,6 @@ export class DeviceComponent implements OnInit, OnDestroy {
         )
         .subscribe();
     }
-  }
-
-  setupDragDrop() {
-    const down$ = fromEvent<MouseEvent>(
-      this.overlay.nativeElement,
-      'mousedown'
-    ).pipe(
-      tap(event => event.stopPropagation()),
-      tap(event => event.preventDefault())
-    );
-
-    const up$ = merge(
-      fromEvent<MouseEvent>(this.overlay.nativeElement, 'mouseup'),
-      fromEvent<MouseEvent>(window, 'mouseout')
-    );
-    const move$ = fromEvent<MouseEvent>(
-      this.overlay.nativeElement,
-      'mousemove'
-    );
-
-    this.drag$ = down$.pipe(
-      withLatestFrom(from(this.content.getScrollElement())),
-      flatMap(down => {
-        const factor = 1 / (this.zoom / 100);
-        const startX = (down[0].clientX + down[1].scrollLeft) * factor;
-        const startLeft =
-          parseInt(this.element.nativeElement.style.left, 10) || 0;
-
-        return move$.pipe(
-          withLatestFrom(from(this.content.getScrollElement())),
-          map(move => {
-            return {
-              left:
-                startLeft +
-                factor * move[0].clientX -
-                startX +
-                factor * move[1].scrollLeft,
-              device: this
-            };
-          }),
-          takeUntil(up$)
-        );
-      })
-    );
-
-    this.dragStart$ = this.drag$.pipe(
-      first(),
-      repeat(),
-      takeUntil(this.onDestroy$)
-    );
-
-    this.dragEnd$ = this.dragStart$.pipe(
-      flatMap(() => {
-        return up$;
-      }),
-      first(),
-      withLatestFrom(this.drag$),
-      map(([event, drag]) => {
-        const order = this.store.selectSnapshot(
-          DevicesState.order(this.device)
-        );
-        const before = this.store.selectSnapshot(DevicesState.before(order));
-        const width = before
-          .map(b => this.widthPipe.transform(b))
-          .reduce((a, b) => a + b, 0);
-        const padding = before.length * this.padding;
-        const ret: DeviceDragEndEvent = {
-          device: drag.device,
-          left: width + padding,
-          order
-        };
-        return ret;
-      }),
-      repeat(),
-      takeUntil(this.onDestroy$)
-    );
-
-    this.click$ = fromEvent<MouseEvent>(
-      this.overlay.nativeElement,
-      'mousedown'
-    ).pipe(
-      filter(ev => !this.focus || this.device.name !== this.focus.name),
-      first(),
-      flatMap(() => fromEvent<MouseEvent>(this.overlay.nativeElement, 'click')),
-      takeUntil(this.drag$),
-      repeat(),
-      takeUntil(this.onDestroy$)
-    );
-
-    this.click$.pipe(tap(() => this.focusDevice(this.device))).subscribe();
   }
 
   setUserAgent() {
@@ -296,7 +191,4 @@ export class DeviceComponent implements OnInit, OnDestroy {
   @Dispatch()
   toggleDeviceOrientation = (device: string) =>
     new ToggleDeviceOrientation(device);
-
-  @Dispatch()
-  focusDevice = (device: Device) => new FocusDevice(device);
 }

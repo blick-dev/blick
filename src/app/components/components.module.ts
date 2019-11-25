@@ -1,3 +1,5 @@
+import { DevicesDragDropDirective } from './devices/devices.dragdrop.directive';
+import { DeviceDragDropDirective } from './device/device-dragdrop.directive';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule, MatTooltipModule } from '@angular/material';
 import { DevicesComponent } from './devices/devices.component';
@@ -11,7 +13,13 @@ import { DeviceSettingsComponent } from './device/settings/settings.component';
 import { AnimationsModule } from '@fivethree/ngx-rxjs-animations';
 
 @NgModule({
-  declarations: [DeviceComponent, DevicesComponent, DeviceSettingsComponent],
+  declarations: [
+    DeviceComponent,
+    DevicesComponent,
+    DeviceSettingsComponent,
+    DeviceDragDropDirective,
+    DevicesDragDropDirective
+  ],
   imports: [
     CommonModule,
     IonicModule,
@@ -28,7 +36,9 @@ import { AnimationsModule } from '@fivethree/ngx-rxjs-animations';
     DeviceComponent,
     PipesModule,
     DevicesComponent,
-    DeviceSettingsComponent
+    DeviceSettingsComponent,
+    DeviceDragDropDirective,
+    DevicesDragDropDirective
   ]
 })
 export class ComponentsModule {}

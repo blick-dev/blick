@@ -1,4 +1,10 @@
-import { filter } from 'rxjs/operators';
+import { AppearanceStateModel } from './../appearance/appearance.state';
+import {
+  RemoveOrderDevice,
+  AddOrderDevice
+} from './../appearance/appearance.action';
+import { AppState } from './../app.state';
+import { AppearanceState } from '@store/appearance/appearance.state';
 import { DevicesStateModel } from './devices.state';
 import {
   State,
@@ -18,10 +24,9 @@ import {
   FocusDevice,
   ClearFocus,
   DragDevice,
-  ClearDrag,
-  SwapAction
+  ClearDrag
 } from './devices.action';
-import { Device, DeviceOrientation, DeviceOrder } from './devices.types';
+import { Device, DeviceOrientation } from './devices.types';
 import { patch, updateItem } from '@ngxs/store/operators';
 
 export interface DevicesStateModel {
@@ -30,7 +35,6 @@ export interface DevicesStateModel {
   url: string;
   focus: Device;
   drag: Device;
-  order: DeviceOrder[];
 }
 
 @State<DevicesStateModel>({
@@ -69,24 +73,6 @@ export interface DevicesStateModel {
         orientation: 'portrait',
         platform: 'desktop'
       }
-    ],
-    order: [
-      {
-        device: 'Pixel 3XL',
-        order: 0
-      },
-      {
-        device: 'iPhone X',
-        order: 1
-      },
-      {
-        device: 'Macbook Pro',
-        order: 2
-      },
-      {
-        device: 'Common Chrome',
-        order: 3
-      }
     ]
   }
 })
@@ -115,18 +101,17 @@ export class DevicesState {
         );
   }
 
-  static order(device: Device) {
-    return createSelector([DevicesState], (state: DevicesStateModel) => {
-      return state.order.find(d => d.device === device.name).order;
-    });
-  }
   static before(order: number) {
-    return createSelector([DevicesState], (state: DevicesStateModel) => {
-      const orders = state.order.filter(d => d.order < order);
-      return (
-        state.devices.filter(d => orders.some(o => o.device === d.name)) || []
-      );
-    });
+    return createSelector(
+      [DevicesState, AppearanceState],
+      (devices: DevicesStateModel, appearance: AppearanceStateModel) => {
+        const orders = appearance.order.filter(d => d.order < order);
+        return (
+          devices.devices.filter(d => orders.some(o => o.device === d.name)) ||
+          []
+        );
+      }
+    );
   }
 
   @Selector()
@@ -144,14 +129,10 @@ export class DevicesState {
       ctx.getState().devices,
       action.payload.name
     );
-    const newOrder = JSON.parse(JSON.stringify(ctx.getState().order)).map(d => {
-      d.order = d.order + 1;
-      return d;
-    });
     ctx.patchState({
-      devices: [action.payload, ...ctx.getState().devices],
-      order: [{ device: action.payload.name, order: 0 }, ...newOrder]
+      devices: [action.payload, ...ctx.getState().devices]
     });
+    return ctx.dispatch(new AddOrderDevice(action.payload));
   }
 
   private findName(devices, name) {
@@ -185,26 +166,10 @@ export class DevicesState {
 
   @Action(RemoveDeviceAction)
   remove(ctx: StateContext<DevicesStateModel>, action: RemoveDeviceAction) {
-    const device = ctx.getState().order.find(d => d.device === action.device);
-    const newOrder = JSON.parse(JSON.stringify(ctx.getState().order))
-      .filter(d => d.order > device.order)
-      .map(d => {
-        d.order = d.order - 1;
-        return d;
-      });
     ctx.patchState({
-      devices: [
-        ...ctx.getState().devices.filter(d => d.name !== action.device)
-      ],
-      order: [
-        ...ctx
-          .getState()
-          .order.filter(
-            d => d.device !== action.device && d.order < device.order
-          ),
-        ...newOrder
-      ]
+      devices: [...ctx.getState().devices.filter(d => d.name !== action.device)]
     });
+    return ctx.dispatch(new RemoveOrderDevice(action.device));
   }
 
   @Action(ToggleOrientation)
@@ -279,47 +244,5 @@ export class DevicesState {
     ctx.patchState({
       drag: null
     });
-  }
-  @Action(SwapAction)
-  swap(ctx: StateContext<DevicesStateModel>, action: SwapAction) {
-    const state = ctx.getState();
-    const drag = state.order.find(d => d.device === action.drag.name).order;
-    const overlayed = state.order
-      .filter(d => action.overlayed.some(o => o.name === d.device))
-      .sort((a, b) => a.order - b.order);
-    const furthest = overlayed.sort(
-      (a, b) => a.order - drag - (b.order - drag)
-    );
-
-    ctx.setState(
-      patch({
-        order: updateItem<DeviceOrder>(
-          d => d.device === action.drag.name,
-          patch({ order: furthest[0].order })
-        )
-      })
-    );
-
-    ctx.setState(
-      patch({
-        order: updateItem<DeviceOrder>(
-          d => d.device === furthest[furthest.length - 1].device,
-          patch({ order: drag })
-        )
-      })
-    );
-    furthest
-      .reverse()
-      .slice(1)
-      .forEach((o, i) => {
-        ctx.setState(
-          patch({
-            order: updateItem<DeviceOrder>(
-              d => d.device === o.device,
-              patch({ order: furthest[i].order })
-            )
-          })
-        );
-      });
   }
 }
