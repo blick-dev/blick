@@ -11,6 +11,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "electron": "node scripts run --platform electron",
+    "electron:start": "cd electron && npm start",
     "cypress": "cypress open",
     "format": "prettier --write \"src/**/*{.ts,.scss}\""
   },
