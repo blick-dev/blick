@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { FivCollapsableModule, FivRouterItemModule } from '@fivethree/core';
 import { MatTooltipModule } from '@angular/material';
+import { NgxElectronModule } from 'ngx-electron';
 
 @NgModule({
   declarations: [AppComponent],
@@ -22,7 +23,8 @@ import { MatTooltipModule } from '@angular/material';
     FivCollapsableModule,
     FivRouterItemModule,
     MatTooltipModule,
-    NgxsStoreModule
+    NgxsStoreModule,
+    NgxElectronModule
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent]

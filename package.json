@@ -43,6 +43,7 @@
     "@ngxs/store": "~3.5.1",
     "capacitor-app": "file:electron",
     "core-js": "^2.5.4",
+    "ngx-electron": "~2.2.0",
     "rxjs": "~6.5.3",
     "tslib": "^1.9.0",
     "zone.js": "~0.9.1"

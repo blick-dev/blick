@@ -19,13 +19,9 @@
         <ion-icon slot="icon-only" name="camera"></ion-icon>
       </ion-button>
     </span>
-    <span matTooltip="coming soon">
-      <ion-button [disabled]="true" matTooltip="open in separate window">
-        <ion-icon slot="icon-only" name="open"></ion-icon>
-      </ion-button>
-    </span>
-
-
+    <ion-button *ngIf="isElectron" matTooltip="Detach device in separate window" (click)="detatchDevice(device, url)">
+      <ion-icon slot="icon-only" name="open"></ion-icon>
+    </ion-button>
   </ion-buttons>
 </ion-toolbar>
 <iframe frameborder="0" #frame [src]="url | plt : device.platform | safe" [width]="device | width | log | pixel"
@@ -33,8 +29,7 @@
 <fiv-spinner *ngIf="finishedLoading$ | pending | async" [circleRadius]="16" [diameter]="40" [strokeWidth]="4"
   [mode]="'indeterminate'"></fiv-spinner>
 <div #overlay [ngClass]="{'hidden': focus?.name === device?.name}"
- (click)="$event.preventDefault(); $event.stopPropagation()"
-  class="no-touch"></div>
+  (click)="$event.preventDefault(); $event.stopPropagation()" class="no-touch"></div>
 <fiv-popover [width]="340" [classes]="['popover-edit-device']" #edit>
   <app-device-settings (close)="edit.close()" [device]="device"></app-device-settings>
 </fiv-popover>

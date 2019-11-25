@@ -3,8 +3,8 @@ import { Theme } from './store/appearance/appearance.types';
 import { Component } from '@angular/core';
 import { Select } from '@ngxs/store';
 import { AppearanceState } from '@store/appearance/appearance.state';
-import { Observable, from } from 'rxjs';
-import { first, flatMap, filter, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { filter, tap } from 'rxjs/operators';
 import { Dispatch } from '@ngxs-labs/dispatch-decorator';
 
 @Component({
@@ -15,6 +15,7 @@ import { Dispatch } from '@ngxs-labs/dispatch-decorator';
 export class AppComponent {
   @Select(AppearanceState.theme)
   theme: Observable<Theme>;
+
   constructor() {
     this.theme
       .pipe(
