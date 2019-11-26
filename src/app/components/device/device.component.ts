@@ -1,10 +1,6 @@
+import { ElectronService } from 'ngx-electron';
 import { DevicesState } from '@store/devices/devices.state';
-import { WidthPipe } from './../../pipes/width.pipe';
 import { Platform } from '@ionic/angular';
-import {
-  RemoveDeviceAction,
-  ToggleDeviceOrientation
-} from './../../store/devices/devices.action';
 import {
   Component,
   OnInit,
@@ -22,6 +18,11 @@ import { HeightPipe } from '@pipes/height.pipe';
 import { SelectSnapshot } from '@ngxs-labs/select-snapshot';
 import { AppearanceState } from '@store/appearance/appearance.state';
 import { Store } from '@ngxs/store';
+import { WidthPipe } from '@pipes/width.pipe';
+import {
+  RemoveDeviceAction,
+  ToggleDeviceOrientation
+} from '@store/devices/devices.action';
 
 @Component({
   selector: 'app-device',
@@ -109,12 +110,17 @@ export class DeviceComponent implements OnInit, OnDestroy {
   @ViewChild('frame', { static: true }) iframe: ElementRef<HTMLIFrameElement>;
   @ViewChild('overlay', { static: true }) overlay: ElementRef;
 
+  get isElectron(): boolean {
+    return this._platform.is('electron');
+  }
+
   constructor(
     private _platform: Platform,
     private heightPipe: HeightPipe,
     private widthPipe: WidthPipe,
     public element: ElementRef,
-    private store: Store
+    private store: Store,
+    private electronService: ElectronService
   ) {}
 
   ngOnInit() {
@@ -128,7 +134,7 @@ export class DeviceComponent implements OnInit, OnDestroy {
   initDevice() {
     this.finishedLoading$ = fromEvent(this.iframe.nativeElement, 'load');
 
-    if (this._platform.is('electron')) {
+    if (this.isElectron) {
       this.finishedLoading$
         .pipe(
           first(),
@@ -179,4 +185,15 @@ export class DeviceComponent implements OnInit, OnDestroy {
   @Dispatch()
   toggleDeviceOrientation = (device: string) =>
     new ToggleDeviceOrientation(device);
+
+  detatchDevice(device: Device, url: string) {
+    this.electronService.ipcRenderer.send('detach-device', {
+      device,
+      url
+    });
+
+    this.electronService.ipcRenderer.on('detach-device-reply', (event, arg) =>
+      console.log('detach-device-reply', arg)
+    );
+  }
 }

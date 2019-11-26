@@ -1,4 +1,5 @@
 const { app, BrowserWindow } = require('electron');
+const glob = require('glob');
 app.commandLine.appendSwitch('touch-events', 'enabled');
 
 const path = require('path');
@@ -6,7 +7,9 @@ const path = require('path');
 let mainWindow = null;
 let browser;
 
-async function createWindow() {
+function createWindow() {
+  loadMainProcess();
+
   // Define our main window size
   mainWindow = new BrowserWindow({
     height: 1024,
@@ -15,6 +18,7 @@ async function createWindow() {
     autoHideMenuBar: true,
     show: false,
     webPreferences: {
+      // TODO set to false?
       nodeIntegration: true,
       // webSecurity: false,
       preload: path.join(
@@ -59,15 +63,19 @@ async function createWindow() {
   mainWindow.webContents.on('dom-ready', () => {
     mainWindow.show();
   });
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some Electron APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => createWindow());
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
+app.on('window-all-closed', () => {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
@@ -75,12 +83,19 @@ app.on('window-all-closed', function() {
   }
 });
 
-app.on('activate', function() {
+app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
     createWindow();
   }
 });
+// }
 
 // Define any IPC or other custom functionality below here
+function loadMainProcess() {
+  const files = glob.sync(path.join(__dirname, 'main-process/**/*.js'));
+  files.forEach(file => {
+    require(file);
+  });
+}

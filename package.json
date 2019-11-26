@@ -11,6 +11,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "electron": "node scripts run --platform electron",
+    "electron:start": "cd electron && npm start",
     "cypress": "cypress open",
     "format": "prettier --write \"src/**/*{.ts,.scss}\""
   },
@@ -43,6 +44,7 @@
     "@ngxs/store": "~3.5.1",
     "capacitor-app": "file:electron",
     "core-js": "^2.5.4",
+    "ngx-electron": "~2.2.0",
     "rxjs": "~6.5.3",
     "tslib": "^1.9.0",
     "zone.js": "~0.9.1"
