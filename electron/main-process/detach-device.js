@@ -1,9 +1,10 @@
 const { ipcMain, BrowserWindow } = require('electron');
 
 ipcMain.on('detach-device', (event, arg) => {
+  const isPortraitMode = arg.device.orientation === 'portrait';
   let window = new BrowserWindow({
-    height: arg.device.height,
-    width: arg.device.width,
+    height: isPortraitMode ? arg.device.height : arg.device.width,
+    width: isPortraitMode ? arg.device.width : arg.device.height,
     resizable: false,
     fullscreen: false
   });
