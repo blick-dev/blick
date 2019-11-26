@@ -1,3 +1,4 @@
+import { Store } from '@ngxs/store';
 import { WidthPipe } from './../../pipes/width.pipe';
 import {
   Component,
@@ -22,10 +23,13 @@ import { DeviceDragDropDirective } from '@components/device/device-dragdrop.dire
   styleUrls: ['./devices.component.scss']
 })
 export class DevicesComponent implements OnInit, AfterContentInit, OnDestroy {
-  @HostBinding('style.width') get width() {
-    return this.pixelWidth + 'px';
+  @HostBinding('style.width') get _width() {
+    return this.width + 'px';
   }
-  @HostBinding('style.transform') get transform() {
+  @HostBinding('style.height') get _height() {
+    return this.height + 'px';
+  }
+  @HostBinding('style.transform') get _transform() {
     return `scale(${this.zoom / 100})`;
   }
 
@@ -38,21 +42,15 @@ export class DevicesComponent implements OnInit, AfterContentInit, OnDestroy {
   zoom: number;
   @SelectSnapshot(AppearanceState.padding)
   padding: number;
-
-  get pixelWidth() {
-    const w =
-      this.devices && this.devices.length > 0
-        ? this.devices
-            .map(d => this.widthPipe.transform(d.device) + this.padding)
-            .reduce((p, c) => p + c + this.padding / 2)
-        : 0;
-    return w;
-  }
+  @SelectSnapshot(AppearanceState.width())
+  width: number;
+  @SelectSnapshot(AppearanceState.height())
+  height: number;
 
   documents$: Observable<Document[]>;
   onDestroy$ = new Subject();
 
-  constructor(public element: ElementRef, private widthPipe: WidthPipe) {}
+  constructor(public element: ElementRef, private store: Store) {}
 
   ngOnInit() {}
 

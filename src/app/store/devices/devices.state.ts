@@ -1,19 +1,8 @@
-import { AppearanceStateModel } from './../appearance/appearance.state';
 import {
   RemoveOrderDevice,
   AddOrderDevice
 } from './../appearance/appearance.action';
-import { AppState } from './../app.state';
-import { AppearanceState } from '@store/appearance/appearance.state';
-import { DevicesStateModel } from './devices.state';
-import {
-  State,
-  Store,
-  Selector,
-  Action,
-  StateContext,
-  createSelector
-} from '@ngxs/store';
+import { State, Store, Selector, Action, StateContext } from '@ngxs/store';
 import {
   AddDeviceAction,
   RemoveDeviceAction,
@@ -99,19 +88,6 @@ export class DevicesState {
       : state.devices.filter(
           device => !state.drag || device.name !== state.drag.name
         );
-  }
-
-  static before(order: number) {
-    return createSelector(
-      [DevicesState, AppearanceState],
-      (devices: DevicesStateModel, appearance: AppearanceStateModel) => {
-        const orders = appearance.order.filter(d => d.order < order);
-        return (
-          devices.devices.filter(d => orders.some(o => o.device === d.name)) ||
-          []
-        );
-      }
-    );
   }
 
   @Selector()

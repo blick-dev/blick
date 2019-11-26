@@ -1,4 +1,4 @@
-import { Theme } from './appearance.types';
+import { Theme, WidthSettings } from './appearance.types';
 import { Device } from '@store/devices/devices.types';
 export class UpdateTheme {
   static readonly type = '[Appearance] UpdateTheme]';
@@ -27,4 +27,8 @@ export class AddOrderDevice {
 export class RemoveOrderDevice {
   static readonly type = '[Appearance] RemoveOrderDevice]';
   constructor(public readonly device: string) {}
+}
+export class UpdateWidthSettings {
+  static readonly type = '[Appearance] UpdateWidthSettings]';
+  constructor(public readonly settings: WidthSettings) {}
 }

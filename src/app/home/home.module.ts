@@ -8,7 +8,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { HomePage } from './home.page';
-import { MatTooltipModule, MatIconModule } from '@angular/material';
+import {
+  MatTooltipModule,
+  MatIconModule,
+  MatSliderModule
+} from '@angular/material';
+import { AppearanceSettingsComponent } from './appearance-settings/appearance-settings.component';
 
 @NgModule({
   imports: [
@@ -18,6 +23,7 @@ import { MatTooltipModule, MatIconModule } from '@angular/material';
     ComponentsModule,
     MatTooltipModule,
     MatIconModule,
+    MatSliderModule,
     FivPopoverModule,
     RouterModule.forChild([
       {
@@ -26,6 +32,6 @@ import { MatTooltipModule, MatIconModule } from '@angular/material';
       }
     ])
   ],
-  declarations: [HomePage, GesturesDirective]
+  declarations: [HomePage, GesturesDirective, AppearanceSettingsComponent]
 })
 export class HomePageModule {}

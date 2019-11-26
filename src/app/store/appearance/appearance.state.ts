@@ -1,3 +1,8 @@
+import { HeightPipe } from '@pipes/height.pipe';
+import { WidthPipe } from '@pipes/width.pipe';
+import { DevicesStateModel } from './../devices/devices.state';
+import { DevicesState } from '@store/devices/devices.state';
+import { Platform } from '@ionic/angular';
 import { Device } from './../devices/devices.types';
 import { AppearanceStateModel } from './appearance.state';
 import {
@@ -6,24 +11,27 @@ import {
   UpdatePadding,
   SwapAction,
   AddOrderDevice,
-  RemoveOrderDevice
+  RemoveOrderDevice,
+  UpdateWidthSettings
 } from './appearance.action';
 import {
-  Store,
   State,
   Action,
   StateContext,
   Selector,
-  createSelector
+  createSelector,
+  Store
 } from '@ngxs/store';
-import { Theme, DeviceOrder } from './appearance.types';
+import { Theme, DeviceOrder, WidthSettings } from './appearance.types';
 import { patch, updateItem } from '@ngxs/store/operators';
+import { Injector } from '@angular/core';
 
 export interface AppearanceStateModel {
   theme: Theme;
   zoom: number;
   padding: number;
   order: DeviceOrder[];
+  width: WidthSettings;
 }
 
 @State<AppearanceStateModel>({
@@ -32,6 +40,10 @@ export interface AppearanceStateModel {
     theme: '',
     zoom: 60,
     padding: 32,
+    width: {
+      width: 0,
+      align: 'horizontal'
+    },
     order: [
       {
         device: 'Pixel 3XL',
@@ -53,7 +65,16 @@ export interface AppearanceStateModel {
   }
 })
 export class AppearanceState {
-  constructor(private store: Store) {}
+  private static platform: Platform;
+  private static widthPipe: WidthPipe;
+  private static heightPipe: HeightPipe;
+  private static store: Store;
+  constructor(private injector: Injector) {
+    AppearanceState.platform = this.injector.get<Platform>(Platform);
+    AppearanceState.widthPipe = this.injector.get<WidthPipe>(WidthPipe);
+    AppearanceState.store = this.injector.get<Store>(Store);
+    AppearanceState.heightPipe = this.injector.get<HeightPipe>(HeightPipe);
+  }
 
   @Selector()
   static theme(state: AppearanceStateModel) {
@@ -67,6 +88,170 @@ export class AppearanceState {
   @Selector()
   static padding(state: AppearanceStateModel) {
     return state.padding;
+  }
+
+  static width() {
+    return createSelector(
+      [AppearanceState, DevicesState],
+      (appearance: AppearanceStateModel, devices: DevicesStateModel) => {
+        switch (appearance.width.align) {
+          case 'custom':
+            return appearance.width.width;
+          case 'vertical':
+            return AppearanceState.platform.width();
+          case 'horizontal':
+            return devices.devices
+              .map(
+                d => AppearanceState.widthPipe.transform(d) + appearance.padding
+              )
+              .reduce((p, c) => p + c + appearance.padding / 2);
+        }
+      }
+    );
+  }
+  static height() {
+    return createSelector(
+      [AppearanceState, DevicesState],
+      (appearance: AppearanceStateModel, devices: DevicesStateModel) => {
+        const orderedDevices = appearance.order.sort(
+          (a, b) => b.order - a.order
+        );
+        if (orderedDevices.length === 0) {
+          return 0;
+        }
+        const last = devices.devices.find(
+          d => d.name === orderedDevices[0].device
+        );
+        const rows = AppearanceState.store.selectSnapshot(
+          AppearanceState.rows(last)
+        );
+        const height = rows
+          .map(row =>
+            Math.max.apply(
+              Math,
+              row.map(function(o) {
+                return (
+                  AppearanceState.heightPipe.transform(o, 56) +
+                  appearance.padding
+                );
+              })
+            )
+          )
+          .reduce((a, b) => a + b, 0);
+        return height;
+      }
+    );
+  }
+  static maxWidth() {
+    return createSelector(
+      [AppearanceState, DevicesState],
+      (appearance: AppearanceStateModel, devices: DevicesStateModel) => {
+        return devices.devices
+          .map(d => AppearanceState.widthPipe.transform(d) + appearance.padding)
+          .reduce((p, c) => p + c);
+      }
+    );
+  }
+
+  static top(device: Device) {
+    return createSelector(
+      [AppearanceState, DevicesState],
+      (appearance: AppearanceStateModel, devices: DevicesStateModel) => {
+        const rows = AppearanceState.store.selectSnapshot(
+          AppearanceState.rows(device)
+        );
+        const rowMax = rows.map(row =>
+          Math.max.apply(
+            Math,
+            row.map(o => AppearanceState.heightPipe.transform(o, 56))
+          )
+        );
+        const top = rowMax
+          .slice(0, rowMax.length - 1)
+          .reduce((a, b) => a + b, 0);
+
+        return top + (rows.length - 1) * appearance.padding;
+      }
+    );
+  }
+  static left(device: Device) {
+    return createSelector(
+      [AppearanceState, DevicesState],
+      (appearance: AppearanceStateModel, devices: DevicesStateModel) => {
+        const rows = AppearanceState.store.selectSnapshot(
+          AppearanceState.rows(device)
+        );
+        const row = rows[rows.length - 1];
+        const before = row.slice(0, row.length - 1);
+        const width = before
+          .map(b => this.widthPipe.transform(b))
+          .reduce((a, b) => a + b, 0);
+        const padding = before.length * appearance.padding;
+        return width + padding;
+      }
+    );
+  }
+
+  static rows(device: Device) {
+    return createSelector(
+      [AppearanceState, DevicesState],
+      (appearance: AppearanceStateModel, devices: DevicesStateModel) => {
+        const order = AppearanceState.store.selectSnapshot(
+          AppearanceState.order(device)
+        );
+        const before = AppearanceState.store.selectSnapshot(
+          AppearanceState.before(order)
+        );
+
+        const rows: Device[][] = [];
+        before.push(device);
+        before.forEach((b, i) => {
+          const bef = before.slice(0, i + 1);
+          const width = bef
+            .map(
+              b => AppearanceState.widthPipe.transform(b) + appearance.padding
+            )
+            .reduce((a, b) => a + b, 0);
+          const devicesWidth = AppearanceState.store.selectSnapshot(
+            AppearanceState.width()
+          );
+          const row = Math.floor(width / devicesWidth);
+          if (rows[row]) {
+            rows[row].push(b);
+          } else {
+            rows.push([b]);
+          }
+        });
+        return rows;
+      }
+    );
+  }
+
+  static before(order: number) {
+    return createSelector(
+      [DevicesState, AppearanceState],
+      (devices: DevicesStateModel, appearance: AppearanceStateModel) => {
+        const orders = appearance.order.filter(d => d.order < order);
+        return (
+          devices.devices
+            .filter(d => orders.some(o => o.device === d.name))
+            .sort(
+              (a, b) =>
+                orders.find(o => o.device === a.name).order -
+                orders.find(o => o.device === b.name).order
+            ) || []
+        );
+      }
+    );
+  }
+
+  @Selector([AppearanceState])
+  static minWidth() {
+    return AppearanceState.platform.width();
+  }
+  @Selector()
+  static align(state: AppearanceStateModel) {
+    return state.width.align;
   }
 
   static order(device: Device) {
@@ -171,5 +356,13 @@ export class AppearanceState {
           })
         );
       });
+  }
+
+  @Action(UpdateWidthSettings)
+  updateWidthSettings(
+    ctx: StateContext<AppearanceStateModel>,
+    action: UpdateWidthSettings
+  ) {
+    return ctx.patchState({ width: action.settings });
   }
 }

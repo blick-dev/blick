@@ -36,22 +36,7 @@
     </div>
   </div>
   <fiv-popover [width]="340" [classes]="['popover-appearance']" #appearance>
-    <ion-card class="ion-no-margin">
-      <ion-buttons>
-        <ion-label class="ion-margin-start">Alignment</ion-label>
-        <ion-button matTooltip="fit vertically">
-          <ion-icon slot="icon-only"></ion-icon>
-          <mat-icon style="transform: rotateZ(90deg);">arrow_right_alt</mat-icon>
-        </ion-button>
-        <ion-range [min]="0" max="100" [value]="100" color="secondary">
-        </ion-range>
-        <ion-button matTooltip="one horizontal row">
-          <ion-icon slot="icon-only"></ion-icon>
-          <mat-icon>arrow_right_alt</mat-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-card>
-
+    <app-appearance-settings *ngIf="appearance?.overlay.open"></app-appearance-settings>
   </fiv-popover>
 </ion-content>
 

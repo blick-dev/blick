@@ -43,6 +43,8 @@ export class DeviceComponent implements OnInit, OnDestroy {
   padding: number;
   @SelectSnapshot(AppearanceState.zoom)
   zoom: number;
+  @SelectSnapshot(AppearanceState.width())
+  width: number;
   @SelectSnapshot(DevicesState.drag)
   private drag: Device;
   @SelectSnapshot(DevicesState.focus)
@@ -56,13 +58,8 @@ export class DeviceComponent implements OnInit, OnDestroy {
     if (this.drag && this.drag.name === this.device.name) {
       return parseInt(this.element.nativeElement.style.left, 10) || 0 + 'px';
     }
-    const order = this.store.selectSnapshot(AppearanceState.order(this.device));
-    const before = this.store.selectSnapshot(DevicesState.before(order));
-    const width = before
-      .map(b => this.widthPipe.transform(b))
-      .reduce((a, b) => a + b, 0);
-    const padding = before.length * this.padding;
-    return width + padding + 'px';
+    const left = this.store.selectSnapshot(AppearanceState.left(this.device));
+    return left + 'px';
   }
 
   @HostBinding('style.top')
@@ -73,13 +70,8 @@ export class DeviceComponent implements OnInit, OnDestroy {
     if (this.drag && this.drag.name === this.device.name) {
       return parseInt(this.element.nativeElement.style.top, 10) || 0 + 'px';
     }
-    // const order = this.store.selectSnapshot(DevicesState.order(this.device));
-    // const before = this.store.selectSnapshot(DevicesState.before(order));
-    // const width = before
-    //   .map(b => this.widthPipe.transform(b))
-    //   .reduce((a, b) => a + b, 0);
-    // const padding = before.length * this.padding;
-    return 0 + 'px';
+    const top = this.store.selectSnapshot(AppearanceState.top(this.device));
+    return top + 'px';
   }
 
   @HostBinding('style.z-index')
@@ -97,10 +89,6 @@ export class DeviceComponent implements OnInit, OnDestroy {
   @HostBinding('style.height')
   get _height() {
     return this.heightPipe.transform(this.device, 56) + 'px';
-  }
-  @HostBinding('style.margin')
-  get _margin() {
-    return this.padding / 2 + 'px';
   }
 
   @HostBinding('class')

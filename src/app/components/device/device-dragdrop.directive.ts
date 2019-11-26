@@ -125,7 +125,7 @@ export class DeviceDragDropDirective implements OnInit {
         const order = this.store.selectSnapshot(
           AppearanceState.order(this.device.device)
         );
-        const before = this.store.selectSnapshot(DevicesState.before(order));
+        const before = this.store.selectSnapshot(AppearanceState.before(order));
         const width = before
           .map(b => this.widthPipe.transform(b))
           .reduce((a, b) => a + b, 0);
