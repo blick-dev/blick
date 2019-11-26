@@ -98,7 +98,9 @@ export class AppearanceState {
           case 'custom':
             return appearance.width.width;
           case 'vertical':
-            return AppearanceState.platform.width();
+            return (
+              AppearanceState.platform.width() * (1 / (appearance.zoom / 100))
+            );
           case 'horizontal':
             return devices.devices
               .map(
@@ -247,8 +249,12 @@ export class AppearanceState {
 
   @Selector([AppearanceState])
   static minWidth() {
-    return AppearanceState.platform.width();
+    return (
+      AppearanceState.platform.width() *
+      (1 / (AppearanceState.store.selectSnapshot(AppearanceState.zoom) / 100))
+    );
   }
+
   @Selector()
   static align(state: AppearanceStateModel) {
     return state.width.align;

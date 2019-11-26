@@ -11,7 +11,8 @@ import {
   takeUntil,
   first,
   repeat,
-  filter
+  filter,
+  debounceTime
 } from 'rxjs/operators';
 import { AppearanceState } from '@store/appearance/appearance.state';
 import { DevicesState } from '@store/devices/devices.state';
@@ -59,21 +60,36 @@ export class DeviceDragDropDirective implements OnInit {
   }
 
   setupDragDrop() {
-    const down$ = fromEvent<MouseEvent>(
-      this.device.overlay.nativeElement,
-      'mousedown'
+    const down$ = merge(
+      fromEvent<MouseEvent>(this.device.overlay.nativeElement, 'pointerdown', {
+        passive: false,
+        capture: true
+      })
     ).pipe(
       tap(event => event.stopPropagation()),
       tap(event => event.preventDefault())
     );
 
     const up$ = merge(
-      fromEvent<MouseEvent>(this.device.overlay.nativeElement, 'mouseup'),
-      fromEvent<MouseEvent>(window, 'mouseout')
+      fromEvent<MouseEvent>(this.device.overlay.nativeElement, 'pointerup'),
+      fromEvent<MouseEvent>(window, 'pointerout', {
+        passive: false,
+        capture: true
+      })
+    ).pipe(
+      tap(event => event.stopPropagation()),
+      tap(event => event.preventDefault())
     );
     const move$ = fromEvent<MouseEvent>(
       this.device.overlay.nativeElement,
-      'mousemove'
+      'pointermove',
+      {
+        passive: false,
+        capture: true
+      }
+    ).pipe(
+      tap(event => event.stopPropagation()),
+      tap(event => event.preventDefault())
     );
 
     this.drag$ = down$.pipe(
@@ -141,22 +157,39 @@ export class DeviceDragDropDirective implements OnInit {
       takeUntil(this.device.onDestroy$)
     );
 
-    this.click$ = fromEvent<MouseEvent>(
-      this.device.overlay.nativeElement,
-      'mousedown'
-    ).pipe(
+    this.click$ = down$.pipe(
       filter(ev => !this.focus || this.device.device.name !== this.focus.name),
+      debounceTime(150),
       first(),
-      flatMap(() =>
-        fromEvent<MouseEvent>(this.device.overlay.nativeElement, 'click')
-      ),
-      takeUntil(this.drag$),
+      takeUntil(this.dragStart$),
       repeat(),
       takeUntil(this.device.onDestroy$)
     );
 
     this.click$
       .pipe(tap(() => this.focusDevice(this.device.device)))
+      .subscribe();
+
+    // prevent touch on overlay (electron) to make dra drop work
+    merge<TouchEvent>(
+      fromEvent(this.device.overlay.nativeElement, 'touchstart', {
+        passive: false,
+        capture: true
+      }),
+      fromEvent(this.device.overlay.nativeElement, 'touchmove', {
+        passive: false,
+        capture: true
+      }),
+      fromEvent(this.device.overlay.nativeElement, 'touchend', {
+        passive: false,
+        capture: true
+      })
+    )
+      .pipe(
+        tap(event => event.stopPropagation()),
+        tap(event => event.preventDefault()),
+        takeUntil(this.device.onDestroy$)
+      )
       .subscribe();
   }
 
