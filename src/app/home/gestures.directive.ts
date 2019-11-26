@@ -52,6 +52,7 @@ export class GesturesDirective implements AfterViewInit, OnDestroy {
         .pipe(
           withLatestFrom(scroll),
           tap(event => event[0].preventDefault()),
+          tap(event => event[0].stopPropagation()),
           tap(value =>
             value[1].scrollBy({
               left: value[0].deltaX,
