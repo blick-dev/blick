@@ -1,10 +1,11 @@
 {
-  "name": "capacitor-app",
-  "version": "1.0.0",
-  "description": "An Amazing Capacitor App",
+  "name": "blick",
+  "description": "blick",
+  "version": "0.0.1",
   "main": "index.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "package:mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --out=out --icon=assets/app-icon/mac/app.icns --extend-info=assets/mac/info.plist"
   },
   "dependencies": {
     "@capacitor/electron": "~1.3.0",
@@ -13,7 +14,9 @@
     "puppeteer-core": "~2.0.0",
     "puppeteer-in-electron": "~1.0.7"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "electron-packager": "~14.1.1"
+  },
   "keywords": [
     "capacitor",
     "electron"
