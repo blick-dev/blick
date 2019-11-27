@@ -50,6 +50,8 @@ export class DeviceComponent implements OnInit, OnDestroy {
   private drag: Device;
   @SelectSnapshot(DevicesState.focus)
   private focus: Device;
+  @SelectSnapshot(DevicesState.zen)
+  zen: Device;
 
   @HostBinding('style.left')
   get _left() {
@@ -58,6 +60,11 @@ export class DeviceComponent implements OnInit, OnDestroy {
     }
     if (this.drag && this.drag.name === this.device.name) {
       return parseInt(this.element.nativeElement.style.left, 10) || 0 + 'px';
+    }
+    if (this.zen && this.zen.name === this.device.name) {
+      return (
+        this.store.selectSnapshot(AppearanceState.zenleft(this.device)) + 'px'
+      );
     }
     const left = this.store.selectSnapshot(AppearanceState.left(this.device));
     return left + 'px';
@@ -71,14 +78,23 @@ export class DeviceComponent implements OnInit, OnDestroy {
     if (this.drag && this.drag.name === this.device.name) {
       return parseInt(this.element.nativeElement.style.top, 10) || 0 + 'px';
     }
+    if (this.zen && this.zen.name === this.device.name) {
+      return (
+        this.store.selectSnapshot(AppearanceState.zentop(this.device)) + 'px'
+      );
+    }
     const top = this.store.selectSnapshot(AppearanceState.top(this.device));
     return top + 'px';
   }
 
   @HostBinding('style.z-index')
   get _zIndex() {
+    const order = this.store.selectSnapshot(AppearanceState.order(this.device));
     if (this.drag && this.drag.name === this.device.name) {
-      return 100;
+      return order + 100;
+    }
+    if (this.zen && this.zen.name === this.device.name) {
+      return order + 500;
     }
     return this.store.selectSnapshot(AppearanceState.order(this.device));
   }
@@ -104,7 +120,14 @@ export class DeviceComponent implements OnInit, OnDestroy {
         ? 'focus'
         : 'blur';
 
-    return [focus, drag].join(' ');
+    const zen =
+      this.zen && this.device && this.zen.name === this.device.name
+        ? 'zen'
+        : this.zen
+        ? 'no-zen'
+        : '';
+
+    return [focus, drag, zen].join(' ');
   }
 
   @ViewChild('frame', { static: true }) iframe: ElementRef<HTMLIFrameElement>;

@@ -1,11 +1,33 @@
 <ion-card class="ion-no-margin">
+  <ion-item-divider>
+    <ion-label>grid settings
+    </ion-label>
+  </ion-item-divider>
+  <ion-grid no-padding>
+    <ion-row>
+      <ion-col size="6">
+        <ion-item lines="none">
+          <ion-range [matTooltip]="'padding ' + padding + 'px'" (ionChange)="updatePadding($event.detail.value)"
+            [min]="0" [max]="256" steps="1" [value]="padding" color="secondary">
+          </ion-range>
+        </ion-item>
+      </ion-col>
+      <ion-col size="6">
+        <ion-item lines="none">
+          <ion-checkbox (ionChange)="updateFit($event.detail.checked)" [checked]="fit" slot="end"></ion-checkbox>
+          fit width
+        </ion-item>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
   <ion-buttons>
-    <ion-label class="ion-margin-start">Alignment</ion-label>
+    <ion-label class="ion-margin-start">alignment</ion-label>
     <ion-button [ngClass]="{'active': align === 'vertical' }" (click)="vertical()" matTooltip="fit vertically">
       <ion-icon slot="icon-only"></ion-icon>
       <mat-icon style="transform: rotateZ(90deg);">arrow_right_alt</mat-icon>
     </ion-button>
-    <ion-range (ionChange)="rangeChange($event)" [min]="min" [max]="max" steps="1" [value]="width" color="secondary">
+    <ion-range (ionChange)="rangeChange($event)" [min]="min" [max]="max" steps="1" [value]="width" color="primary">
     </ion-range>
     <ion-button [ngClass]="{'active': align === 'horizontal' }" (click)="horizontal()" matTooltip="one horizontal row">
       <ion-icon slot="icon-only"></ion-icon>

@@ -1,4 +1,8 @@
-import { NavigateURL, ClearFocus } from './../store/devices/devices.action';
+import {
+  NavigateURL,
+  ClearFocus,
+  ClearZen
+} from './../store/devices/devices.action';
 import {
   UpdateTheme,
   UpdateZoom
@@ -36,6 +40,8 @@ export class HomePage implements OnDestroy {
   theme: Observable<Theme>;
   @SelectSnapshot(AppearanceState.zoom)
   zoom: number;
+  @SelectSnapshot(DevicesState.zen)
+  zen: Device;
 
   onDestroy$ = new Subject();
 
@@ -51,6 +57,14 @@ export class HomePage implements OnDestroy {
 
   ngOnDestroy(): void {
     this.onDestroy$.next();
+  }
+
+  clear() {
+    if (this.zen) {
+      return this.clearZen();
+    }
+
+    return this.clearFocus();
   }
 
   @Dispatch()
@@ -76,4 +90,7 @@ export class HomePage implements OnDestroy {
 
   @Dispatch()
   setZoom = (zoom: number) => new UpdateZoom(zoom);
+
+  @Dispatch()
+  clearZen = () => new ClearZen();
 }

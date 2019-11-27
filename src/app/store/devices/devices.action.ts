@@ -28,8 +28,16 @@ export class FocusDevice {
   static readonly type = '[Devices] FocusDevice]';
   constructor(public readonly device: Device) {}
 }
+export class ZenDevice {
+  static readonly type = '[Devices] ZenDevice]';
+  constructor(public readonly device: Device) {}
+}
 export class ClearFocus {
   static readonly type = '[Devices] ClearFocus]';
+  constructor() {}
+}
+export class ClearZen {
+  static readonly type = '[Devices] ClearZen]';
   constructor() {}
 }
 export class DragDevice {

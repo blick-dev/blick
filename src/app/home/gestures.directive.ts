@@ -1,3 +1,5 @@
+import { Device } from './../store/devices/devices.types';
+import { DevicesState } from '@store/devices/devices.state';
 import { IonContent } from '@ionic/angular';
 import {
   Directive,
@@ -16,7 +18,8 @@ import {
   startWith,
   scan,
   flatMap,
-  mergeMap
+  mergeMap,
+  skipWhile
 } from 'rxjs/operators';
 import { Dispatch } from '@ngxs-labs/dispatch-decorator';
 import { UpdateZoom } from '@store/appearance/appearance.action';

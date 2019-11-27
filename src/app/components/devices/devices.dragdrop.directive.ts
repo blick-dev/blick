@@ -20,12 +20,23 @@ import {
 } from 'rxjs/operators';
 import { Dispatch } from '@ngxs-labs/dispatch-decorator';
 import { Device } from '@store/devices/devices.types';
-import { DragDevice, ClearDrag } from '@store/devices/devices.action';
+import {
+  DragDevice,
+  ClearDrag,
+  FocusDevice,
+  ZenDevice
+} from '@store/devices/devices.action';
 import { SwapAction } from '@store/appearance/appearance.action';
 import { DevicesState } from '@store/devices/devices.state';
-import { Select } from '@ngxs/store';
+import { Select, Store } from '@ngxs/store';
 import { SelectSnapshot } from '@ngxs-labs/select-snapshot';
 import { AppearanceState } from '@store/appearance/appearance.state';
+import {
+  tween,
+  easeInOutSine,
+  toPosition,
+  RectPosition
+} from '@fivethree/ngx-rxjs-animations';
 
 @Directive({ selector: '[drapdroparea]' })
 export class DevicesDragDropDirective implements AfterViewInit {
@@ -33,6 +44,8 @@ export class DevicesDragDropDirective implements AfterViewInit {
   dragStarts$: Observable<DeviceDragEvent>;
   dragEnds$: Observable<DeviceDragEndEvent>;
   overlayed$: Observable<DeviceDragEvent[]>;
+  clicks$: Observable<Device>;
+  doubleclicks$: Observable<Device>;
 
   @Select(DevicesState.nondrag)
   private nondrag: Observable<Device[]>;
@@ -42,7 +55,10 @@ export class DevicesDragDropDirective implements AfterViewInit {
   @SelectSnapshot(AppearanceState.padding)
   padding: number;
 
-  constructor(@Host() private devices: DevicesComponent) {}
+  constructor(
+    @Host() private devices: DevicesComponent,
+    private store: Store
+  ) {}
 
   ngAfterViewInit(): void {
     this.setupDrag();
@@ -67,6 +83,18 @@ export class DevicesDragDropDirective implements AfterViewInit {
       startWith(this.devices.dragDevices),
       flatMap((devices: QueryList<DeviceDragDropDirective>) =>
         merge(...devices.map(device => device.drag$))
+      )
+    );
+    this.clicks$ = this.devices.dragDevices.changes.pipe(
+      startWith(this.devices.dragDevices),
+      flatMap((devices: QueryList<DeviceDragDropDirective>) =>
+        merge(...devices.map(device => device.click$))
+      )
+    );
+    this.doubleclicks$ = this.devices.dragDevices.changes.pipe(
+      startWith(this.devices.dragDevices),
+      flatMap((devices: QueryList<DeviceDragDropDirective>) =>
+        merge(...devices.map(device => device.doubleclick$))
       )
     );
 
@@ -133,6 +161,35 @@ export class DevicesDragDropDirective implements AfterViewInit {
       .pipe(tap(this.clearDrag), takeUntil(this.devices.onDestroy$))
       .subscribe();
 
+    this.clicks$
+      .pipe(tap(this.focusDevice), takeUntil(this.devices.onDestroy$))
+      .subscribe();
+    // this.doubleclicks$
+    //   .pipe(
+    //     flatMap((device: Device) => {
+    //       const comp = this.devices.devices.find(
+    //         d => d.device.name === device.name
+    //       );
+    //       const left = this.store.selectSnapshot(
+    //         AppearanceState.zenleft(device)
+    //       );
+    //       const top = this.store.selectSnapshot(AppearanceState.zentop(device));
+    //       const position: RectPosition = {
+    //         left: left,
+    //         top: top,
+    //         height: device.height,
+    //         width: device.width
+    //       };
+    //       const animation = tween(easeInOutSine, 200).pipe(
+    //         tap(console.log),
+    //         toPosition(comp.element, position)
+    //       );
+    //       return animation;
+    //     }),
+    //     takeUntil(this.devices.onDestroy$)
+    //   )
+    //   .subscribe();
+
     this.overlayed$
       .pipe(
         filter(o => o.length > 0),
@@ -159,4 +216,10 @@ export class DevicesDragDropDirective implements AfterViewInit {
 
   @Dispatch()
   clearDrag = () => new ClearDrag();
+
+  @Dispatch()
+  focusDevice = (device: Device) => new FocusDevice(device);
+
+  @Dispatch()
+  zenDevice = (device: Device) => new ZenDevice(device);
 }

@@ -1,5 +1,4 @@
-import { Store } from '@ngxs/store';
-import { WidthPipe } from './../../pipes/width.pipe';
+import { Platform } from '@ionic/angular';
 import {
   Component,
   OnInit,
@@ -8,7 +7,8 @@ import {
   AfterContentInit,
   HostBinding,
   ElementRef,
-  OnDestroy
+  OnDestroy,
+  HostListener
 } from '@angular/core';
 import { zip, Observable, Subject } from 'rxjs';
 import { map, flatMap, takeUntil, filter } from 'rxjs/operators';
@@ -16,6 +16,8 @@ import { DeviceComponent } from '../device/device.component';
 import { SelectSnapshot } from '@ngxs-labs/select-snapshot';
 import { AppearanceState } from '@store/appearance/appearance.state';
 import { DeviceDragDropDirective } from '@components/device/device-dragdrop.directive';
+import { DevicesState } from '@store/devices/devices.state';
+import { Device } from '@store/devices/devices.types';
 
 @Component({
   selector: 'app-devices',
@@ -24,13 +26,23 @@ import { DeviceDragDropDirective } from '@components/device/device-dragdrop.dire
 })
 export class DevicesComponent implements OnInit, AfterContentInit, OnDestroy {
   @HostBinding('style.width') get _width() {
+    if (this.zen) {
+      return this.platform.width() + 'px';
+    }
     return this.width + 'px';
   }
   @HostBinding('style.height') get _height() {
+    if (this.zen) {
+      return this.platform.height() + 'px';
+    }
     return this.height + 'px';
   }
   @HostBinding('style.transform') get _transform() {
     return `scale(${this.zoom / 100})`;
+  }
+
+  @HostBinding('style.transform-origin') get _transformOrigin() {
+    return this.zen ? 'center center' : 'top left';
   }
 
   @ContentChildren(DeviceComponent) devices: QueryList<DeviceComponent>;
@@ -46,11 +58,13 @@ export class DevicesComponent implements OnInit, AfterContentInit, OnDestroy {
   width: number;
   @SelectSnapshot(AppearanceState.height())
   height: number;
+  @SelectSnapshot(DevicesState.zen)
+  zen: Device;
 
   documents$: Observable<Document[]>;
   onDestroy$ = new Subject();
 
-  constructor(public element: ElementRef, private store: Store) {}
+  constructor(public element: ElementRef, private platform: Platform) {}
 
   ngOnInit() {}
 

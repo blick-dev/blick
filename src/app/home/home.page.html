@@ -13,19 +13,19 @@
         [matTooltip]="t === 'dark' ? 'lightmode' : 'darkmode'">
         <ion-icon [ngClass]="[t]" slot="icon-only" name="contrast"></ion-icon>
       </ion-button>
-      <ion-button (click)="appearance.open($event)" [matTooltip]="'appearance'">
-        <ion-icon slot="icon-only" name="more"></ion-icon>
+      <ion-button (click)="appearance.open($event)" [matTooltip]="'grid settings'">
+        <ion-icon slot="icon-only" name="grid"></ion-icon>
       </ion-button>
 
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content gestures (click)="clearFocus()" #content scrollX="true" [scrollEvents]="true">
+<ion-content gestures (click)="clear()" #content scrollX="true" [scrollEvents]="true">
+
   <app-devices drapdroparea>
     <app-device dragdrop *ngFor="let device of devices | async" [device]="device" [url]="url$ | async">
     </app-device>
   </app-devices>
-
   <div class="landing" *ngIf="devices | empty | async">
     <div>
       <img class="no-devices" src="assets/no_devices.svg">
@@ -39,7 +39,6 @@
     <app-appearance-settings *ngIf="appearance?.overlay.open"></app-appearance-settings>
   </fiv-popover>
 </ion-content>
-
 
 <ion-footer translucent="true">
   <ion-toolbar ion-padding-horizontal>

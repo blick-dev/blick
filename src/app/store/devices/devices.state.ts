@@ -13,7 +13,9 @@ import {
   FocusDevice,
   ClearFocus,
   DragDevice,
-  ClearDrag
+  ClearDrag,
+  ZenDevice,
+  ClearZen
 } from './devices.action';
 import { Device, DeviceOrientation } from './devices.types';
 import { patch, updateItem } from '@ngxs/store/operators';
@@ -24,6 +26,7 @@ export interface DevicesStateModel {
   url: string;
   focus: Device;
   drag: Device;
+  zen: Device;
 }
 
 @State<DevicesStateModel>({
@@ -31,6 +34,7 @@ export interface DevicesStateModel {
   defaults: {
     focus: null,
     drag: null,
+    zen: null,
     url: 'https://fivethree-team.github.io/ionic-4-components/',
     orientation: 'portrait',
     devices: [
@@ -79,6 +83,10 @@ export class DevicesState {
   @Selector()
   static drag(state: DevicesStateModel) {
     return state.drag;
+  }
+  @Selector()
+  static zen(state: DevicesStateModel) {
+    return state.zen;
   }
 
   @Selector()
@@ -201,10 +209,22 @@ export class DevicesState {
       focus: action.device
     });
   }
+  @Action(ZenDevice)
+  zen(ctx: StateContext<DevicesStateModel>, action: ZenDevice) {
+    ctx.patchState({
+      zen: action.device
+    });
+  }
   @Action(ClearFocus)
   clearFocus(ctx: StateContext<DevicesStateModel>) {
     ctx.patchState({
       focus: null
+    });
+  }
+  @Action(ClearZen)
+  clearZen(ctx: StateContext<DevicesStateModel>) {
+    ctx.patchState({
+      zen: null
     });
   }
   @Action(DragDevice)

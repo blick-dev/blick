@@ -1,13 +1,19 @@
-import { UpdateWidthSettings } from './../../store/appearance/appearance.action';
+import { takeUntil, skip, tap } from 'rxjs/operators';
+import {
+  UpdateWidthSettings,
+  UpdatePadding,
+  UpdateFitSetting
+} from './../../store/appearance/appearance.action';
 import {
   WidthSettings,
   DeviceAlignment
 } from './../../store/appearance/appearance.types';
-import { Component, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
 import { Dispatch } from '@ngxs-labs/dispatch-decorator';
 import { SelectSnapshot } from '@ngxs-labs/select-snapshot';
 import { AppearanceState } from '@store/appearance/appearance.state';
 import { Subject } from 'rxjs';
+import { IonRange } from '@ionic/angular';
 
 @Component({
   selector: 'app-appearance-settings',
@@ -24,6 +30,12 @@ export class AppearanceSettingsComponent implements AfterViewInit, OnDestroy {
   width: number;
   @SelectSnapshot(AppearanceState.align)
   align: DeviceAlignment;
+  @SelectSnapshot(AppearanceState.padding)
+  padding: DeviceAlignment;
+  @SelectSnapshot(AppearanceState.fit)
+  fit: boolean;
+
+  @ViewChild(IonRange, { static: false }) range: IonRange;
 
   constructor() {}
 
@@ -44,6 +56,7 @@ export class AppearanceSettingsComponent implements AfterViewInit, OnDestroy {
   }
 
   rangeChange(event: CustomEvent) {
+    console.log('range change', event);
     if (event.detail.value === this.max) {
       return this.updateWidthSettings({
         width: event.detail.value,
@@ -61,4 +74,9 @@ export class AppearanceSettingsComponent implements AfterViewInit, OnDestroy {
   @Dispatch()
   updateWidthSettings = (settings: WidthSettings) =>
     new UpdateWidthSettings(settings);
+
+  @Dispatch()
+  updatePadding = (padding: number) => new UpdatePadding(padding);
+  @Dispatch()
+  updateFit = (fit: boolean) => new UpdateFitSetting(fit);
 }

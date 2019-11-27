@@ -17,6 +17,12 @@
 :host.no-drag {
   transition: all 160ms ease;
 }
+:host.zen {
+  transition: box-shadow 160ms ease, opacity 160ms ease;
+}
+:host.no-zen {
+  opacity: 0;
+}
 
 iframe:hover {
   cursor: url(/assets/cursor.png), auto;

@@ -1,3 +1,4 @@
+import { ZenDevice } from './../../store/devices/devices.action';
 import { Directive, OnInit, ElementRef, Host } from '@angular/core';
 import { IonContent } from '@ionic/angular';
 import { WidthPipe } from '@pipes/width.pipe';
@@ -12,7 +13,8 @@ import {
   first,
   repeat,
   filter,
-  debounceTime
+  debounceTime,
+  buffer
 } from 'rxjs/operators';
 import { AppearanceState } from '@store/appearance/appearance.state';
 import { DevicesState } from '@store/devices/devices.state';
@@ -45,7 +47,8 @@ export class DeviceDragDropDirective implements OnInit {
   drag$: Observable<DeviceDragEvent>;
   dragStart$: Observable<DeviceDragEvent>;
   dragEnd$: Observable<DeviceDragEndEvent>;
-  click$: Observable<MouseEvent>;
+  click$: Observable<Device>;
+  doubleclick$: Observable<Device>;
 
   constructor(
     @Host() private device: DeviceComponent,
@@ -157,18 +160,28 @@ export class DeviceDragDropDirective implements OnInit {
       takeUntil(this.device.onDestroy$)
     );
 
-    this.click$ = down$.pipe(
-      filter(ev => !this.focus || this.device.device.name !== this.focus.name),
-      debounceTime(150),
-      first(),
-      takeUntil(this.dragStart$),
-      repeat(),
+    const buff$ = down$.pipe(debounceTime(150));
+
+    this.doubleclick$ = down$.pipe(
+      buffer(buff$),
+      map(list => {
+        return list.length;
+      }),
+      filter(x => x === 2),
+      map(() => this.device.device),
       takeUntil(this.device.onDestroy$)
     );
 
-    this.click$
-      .pipe(tap(() => this.focusDevice(this.device.device)))
-      .subscribe();
+    this.click$ = down$.pipe(
+      filter(ev => !this.focus || this.device.device.name !== this.focus.name),
+      debounceTime(200),
+      first(),
+      map(() => this.device.device),
+      takeUntil(this.dragStart$),
+      takeUntil(this.doubleclick$),
+      repeat(),
+      takeUntil(this.device.onDestroy$)
+    );
 
     // prevent touch on overlay (electron) to make dra drop work
     merge<TouchEvent>(
@@ -192,7 +205,4 @@ export class DeviceDragDropDirective implements OnInit {
       )
       .subscribe();
   }
-
-  @Dispatch()
-  focusDevice = (device: Device) => new FocusDevice(device);
 }

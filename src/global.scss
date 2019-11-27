@@ -47,6 +47,11 @@ ion-item {
   --color: var(--ion-color-dark);
 }
 
+ion-item-divider {
+  --background: var(--ion-color-light-shade);
+  --color: var(--ion-color-dark);
+}
+
 ion-icon:hover,
 mat-icon:hover {
   color: var(--ion-color-secondary);

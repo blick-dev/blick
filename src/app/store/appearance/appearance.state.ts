@@ -12,7 +12,8 @@ import {
   SwapAction,
   AddOrderDevice,
   RemoveOrderDevice,
-  UpdateWidthSettings
+  UpdateWidthSettings,
+  UpdateFitSetting
 } from './appearance.action';
 import {
   State,
@@ -22,7 +23,7 @@ import {
   createSelector,
   Store
 } from '@ngxs/store';
-import { Theme, DeviceOrder, WidthSettings } from './appearance.types';
+import { Theme, DeviceOrder, DeviceAlignment } from './appearance.types';
 import { patch, updateItem } from '@ngxs/store/operators';
 import { Injector } from '@angular/core';
 
@@ -31,7 +32,9 @@ export interface AppearanceStateModel {
   zoom: number;
   padding: number;
   order: DeviceOrder[];
-  width: WidthSettings;
+  width: number;
+  align: DeviceAlignment;
+  fit: boolean;
 }
 
 @State<AppearanceStateModel>({
@@ -40,10 +43,9 @@ export interface AppearanceStateModel {
     theme: '',
     zoom: 60,
     padding: 32,
-    width: {
-      width: 0,
-      align: 'horizontal'
-    },
+    width: 0,
+    align: 'horizontal',
+    fit: true,
     order: [
       {
         device: 'Pixel 3XL',
@@ -94,12 +96,13 @@ export class AppearanceState {
     return createSelector(
       [AppearanceState, DevicesState],
       (appearance: AppearanceStateModel, devices: DevicesStateModel) => {
-        switch (appearance.width.align) {
+        switch (appearance.align) {
           case 'custom':
-            return appearance.width.width;
+            return appearance.width;
           case 'vertical':
             return (
-              AppearanceState.platform.width() * (1 / (appearance.zoom / 100))
+              AppearanceState.platform.width() *
+              (appearance.fit ? 1 / (appearance.zoom / 100) : 1)
             );
           case 'horizontal':
             return devices.devices
@@ -140,7 +143,7 @@ export class AppearanceState {
             )
           )
           .reduce((a, b) => a + b, 0);
-        return height;
+        return height + appearance.padding;
       }
     );
   }
@@ -172,7 +175,7 @@ export class AppearanceState {
           .slice(0, rowMax.length - 1)
           .reduce((a, b) => a + b, 0);
 
-        return top + (rows.length - 1) * appearance.padding;
+        return top + rows.length * appearance.padding;
       }
     );
   }
@@ -188,8 +191,33 @@ export class AppearanceState {
         const width = before
           .map(b => this.widthPipe.transform(b))
           .reduce((a, b) => a + b, 0);
-        const padding = before.length * appearance.padding;
+        const padding = (before.length + 1) * appearance.padding;
         return width + padding;
+      }
+    );
+  }
+
+  static zenleft(device: Device) {
+    return createSelector(
+      [AppearanceState, DevicesState],
+      (appearance: AppearanceStateModel, devices: DevicesStateModel) => {
+        const factor =
+          1 /
+          (AppearanceState.store.selectSnapshot(AppearanceState.zoom) / 100);
+        const width = AppearanceState.platform.width();
+        return Math.max(0, 0.5 * width - 0.5 * device.width);
+      }
+    );
+  }
+  static zentop(device: Device) {
+    return createSelector(
+      [AppearanceState, DevicesState],
+      (appearance: AppearanceStateModel, devices: DevicesStateModel) => {
+        const factor =
+          1 /
+          (AppearanceState.store.selectSnapshot(AppearanceState.zoom) / 100);
+        const height = AppearanceState.platform.height();
+        return Math.max(0, 0.5 * height - 0.5 * device.height - 112);
       }
     );
   }
@@ -251,13 +279,19 @@ export class AppearanceState {
   static minWidth() {
     return (
       AppearanceState.platform.width() *
-      (1 / (AppearanceState.store.selectSnapshot(AppearanceState.zoom) / 100))
+      (AppearanceState.store.selectSnapshot(AppearanceState.fit)
+        ? 1 / (AppearanceState.store.selectSnapshot(AppearanceState.zoom) / 100)
+        : 1)
     );
   }
 
   @Selector()
   static align(state: AppearanceStateModel) {
-    return state.width.align;
+    return state.align;
+  }
+  @Selector()
+  static fit(state: AppearanceStateModel) {
+    return state.fit;
   }
 
   static order(device: Device) {
@@ -281,6 +315,10 @@ export class AppearanceState {
     action: UpdatePadding
   ) {
     return ctx.patchState({ padding: action.padding });
+  }
+  @Action(UpdateFitSetting)
+  updateFit(ctx: StateContext<AppearanceStateModel>, action: UpdateFitSetting) {
+    return ctx.patchState({ fit: action.fit });
   }
 
   @Action(AddOrderDevice)
@@ -369,6 +407,9 @@ export class AppearanceState {
     ctx: StateContext<AppearanceStateModel>,
     action: UpdateWidthSettings
   ) {
-    return ctx.patchState({ width: action.settings });
+    return ctx.patchState({
+      width: action.settings.width,
+      align: action.settings.align
+    });
   }
 }

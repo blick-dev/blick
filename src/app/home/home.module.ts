@@ -1,5 +1,5 @@
 import { GesturesDirective } from './gestures.directive';
-import { FivPopoverModule } from '@fivethree/core';
+import { FivPopoverModule, FivOverlayModule } from '@fivethree/core';
 import { ComponentsModule } from './../components/components.module';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -20,6 +20,7 @@ import { AppearanceSettingsComponent } from './appearance-settings/appearance-se
     CommonModule,
     FormsModule,
     IonicModule,
+    FivOverlayModule,
     ComponentsModule,
     MatTooltipModule,
     MatIconModule,

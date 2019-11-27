@@ -12,6 +12,10 @@ export class UpdatePadding {
   static readonly type = '[Appearance] UpdatePadding]';
   constructor(public readonly padding: number) {}
 }
+export class UpdateFitSetting {
+  static readonly type = '[Appearance] UpdateFitSetting]';
+  constructor(public readonly fit: boolean) {}
+}
 
 export class SwapAction {
   static readonly type = '[Appearance] SwapAction]';
