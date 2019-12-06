@@ -13,6 +13,8 @@ jobs:
 
       - name: install angular and firebase
         run: npm install -g firebase-tools @angular/cli
+      - name: install dependencies
+        run: npm i
       - name: build and deploy
         run: |
           ng build --prod
