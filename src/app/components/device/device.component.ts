@@ -10,8 +10,8 @@ import {
   HostBinding,
   OnDestroy
 } from '@angular/core';
-import { fromEvent, Subject, ReplaySubject, Observable } from 'rxjs';
-import { map, tap, first } from 'rxjs/operators';
+import { fromEvent, Subject, ReplaySubject, Observable, of } from 'rxjs';
+import { map, tap, first, flatMap } from 'rxjs/operators';
 import { Dispatch } from '@ngxs-labs/dispatch-decorator';
 import { Device } from '@store/devices/devices.types';
 import { HeightPipe } from '@pipes/height.pipe';
@@ -34,7 +34,7 @@ export class DeviceComponent implements OnInit, OnDestroy {
   @Input() url: string;
 
   document$: ReplaySubject<Document> = new ReplaySubject();
-  finishedLoading$: Observable<Event>;
+  finishedLoading$: Observable<any[]>;
 
   onDestroy$ = new Subject();
 
@@ -47,9 +47,9 @@ export class DeviceComponent implements OnInit, OnDestroy {
   @SelectSnapshot(AppearanceState.width())
   width: number;
   @SelectSnapshot(DevicesState.drag)
-  private drag: Device;
+  drag: Device;
   @SelectSnapshot(DevicesState.focus)
-  private focus: Device;
+  focus: Device;
   @SelectSnapshot(DevicesState.zen)
   zen: Device;
 
@@ -155,7 +155,9 @@ export class DeviceComponent implements OnInit, OnDestroy {
   }
 
   initDevice() {
-    this.finishedLoading$ = fromEvent(this.iframe.nativeElement, 'load');
+    this.finishedLoading$ = fromEvent(this.iframe.nativeElement, 'load').pipe(
+      flatMap(() => of([]))
+    );
 
     if (this.isElectron) {
       this.finishedLoading$
