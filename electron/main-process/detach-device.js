@@ -1,6 +1,8 @@
 const { ipcMain, BrowserWindow, BrowserView } = require('electron');
 
 const toolbarHeight = 56;
+let window;
+let view;
 
 ipcMain.on('detach-device', (event, arg) => {
   const isPortraitMode = arg.device.orientation === 'portrait';
@@ -10,7 +12,8 @@ ipcMain.on('detach-device', (event, arg) => {
     : arg.device.width + toolbarHeight;
   const width = isPortraitMode ? arg.device.width : arg.device.height;
 
-  let window = new BrowserWindow({
+  window = new BrowserWindow({
+    webPreferences: { nodeIntegration: true },
     height: height,
     width: width,
     resizable: false,
@@ -21,7 +24,7 @@ ipcMain.on('detach-device', (event, arg) => {
   window.loadURL(`file://${__dirname}/../src/detach-device.html`);
   window.show();
 
-  let view = new BrowserView();
+  view = new BrowserView({ webPreferences: { devTools: true } });
   window.setBrowserView(view);
   view.setBounds({
     x: 0,
@@ -33,4 +36,8 @@ ipcMain.on('detach-device', (event, arg) => {
   view.webContents.loadURL(arg.url);
 
   event.sender.send('detach-device-reply', { windowId: window.id });
+});
+
+ipcMain.on('open-dev-tools', (event, arg) => {
+  view.webContents.openDevTools({ mode: 'detach' });
 });
