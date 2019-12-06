@@ -24,7 +24,14 @@ ipcMain.on('detach-device', (event, arg) => {
   window.loadURL(`file://${__dirname}/../src/detach-device.html`);
   window.show();
 
-  view = new BrowserView({ webPreferences: { devTools: true } });
+  view = new BrowserView({
+    webPreferences: {
+      devTools: true,
+      enableRemoteModule: false,
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  });
   window.setBrowserView(view);
   view.setBounds({
     x: 0,
@@ -32,6 +39,8 @@ ipcMain.on('detach-device', (event, arg) => {
     height: height,
     width: width
   });
+  view.setAutoResize({ horizontal: true });
+
   // TODO add user agent to load url
   view.webContents.loadURL(arg.url);
 
@@ -40,4 +49,12 @@ ipcMain.on('detach-device', (event, arg) => {
 
 ipcMain.on('open-dev-tools', (event, arg) => {
   view.webContents.openDevTools({ mode: 'detach' });
+});
+
+ipcMain.on('rotate-device', (event, arg) => {
+  const bounds = window.getBounds();
+  window.setBounds({
+    height: bounds.width,
+    width: bounds.height
+  });
 });
