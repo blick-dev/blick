@@ -29,7 +29,7 @@
     "@angular/router": "8.2.14",
     "@capacitor/core": "1.3.0",
     "@fivethree/async-pipes": "0.1.0",
-    "@fivethree/core": "1.0.0-alpha.6",
+    "@fivethree/core": "1.0.0-alpha.19",
     "@fivethree/ngx-rxjs-animations": "0.0.2",
     "@fivethree/ngxs-ionic-router-plugin": "0.1.0",
     "@fivethree/ngxs-notification-plugin": "0.2.1",
