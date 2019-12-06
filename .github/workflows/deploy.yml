@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@master
 
       - name: install angular and firebase
-        run: npm install -g firebase-tools angular
+        run: npm install -g firebase-tools @angular/cli
       - name: build and deploy
         run: |
           ng build --prod
