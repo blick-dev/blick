@@ -11,8 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: install firebase
-        run: npm install -g firebase-tools
+      - name: install angular and firebase
+        run: npm install -g firebase-tools angular
       - name: build and deploy
         run: |
           ng build --prod
