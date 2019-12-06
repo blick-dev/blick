@@ -8,14 +8,14 @@
     "package:mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --out=out --icon=assets/app-icon/mac/app.icns --extend-info=assets/mac/info.plist"
   },
   "dependencies": {
-    "@capacitor/electron": "~1.3.0",
-    "electron": "~7.1.2",
-    "electron-is-dev": "^1.1.0",
-    "puppeteer-core": "~2.0.0",
-    "puppeteer-in-electron": "~1.0.7"
+    "@capacitor/electron": "1.3.0",
+    "electron": "7.1.3",
+    "electron-is-dev": "1.1.0",
+    "puppeteer-core": "2.0.0",
+    "puppeteer-in-electron": "1.0.7"
   },
   "devDependencies": {
-    "electron-packager": "~14.1.1"
+    "electron-packager": "14.1.1"
   },
   "keywords": [
     "capacitor",
