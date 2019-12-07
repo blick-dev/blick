@@ -1,7 +1,7 @@
 <ion-header no-border>
   <ion-toolbar class="url-bar ion-padding-horizontal">
     <div class="url-bar-wrapper">
-      <img class="logo" src="assets/icon/blick-logo.svg">
+      <img alt="logo for blick.dev app" class="logo" src="assets/icon/blick-logo.svg">
       <ion-input #url (keydown.enter)="navigate(url.value)" class="url-input" [value]="(url$ | async)" type="url"
         placeholder="URL">
       </ion-input>
@@ -32,7 +32,7 @@
   </app-devices>
   <div class="landing" *ngIf="devices | empty | async">
     <div>
-      <img class="no-devices" src="assets/no_devices.svg">
+      <img alt="no devices found illustration" class="no-devices" src="assets/no_devices.svg">
       <ion-button fill="outline" shape="round" (click)="addDevice()">
         <mat-icon slot="start">devices</mat-icon>
         <ion-label class="ion-padding-start">add new device</ion-label>
