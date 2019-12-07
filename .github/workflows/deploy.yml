@@ -1,0 +1,23 @@
+name: firebase deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-deploy:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: install angular and firebase
+        run: npm install -g firebase-tools @angular/cli
+      - name: install dependencies
+        run: npm i
+      - name: remove me
+        run: cd scripts && npm i
+      - name: build and deploy
+        run: |
+          ng build --prod
+          firebase deploy --token ${{ secrets.FIREBASE_TOKEN }}
