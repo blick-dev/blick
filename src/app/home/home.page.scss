@@ -12,6 +12,16 @@ ion-range {
   height: 36px;
   font-size: 1.2rem;
   font-weight: 500;
+  margin-left: 12px;
+}
+
+.url-bar-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 24px;
 }
 
 .landing {
