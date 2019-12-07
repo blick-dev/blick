@@ -11,6 +11,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { FivCollapsableModule, FivRouterItemModule } from '@fivethree/core';
 import { MatTooltipModule } from '@angular/material';
 import { NgxElectronModule } from 'ngx-electron';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [AppComponent],
@@ -24,7 +26,8 @@ import { NgxElectronModule } from 'ngx-electron';
     FivRouterItemModule,
     MatTooltipModule,
     NgxsStoreModule,
-    NgxElectronModule
+    NgxElectronModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent]
