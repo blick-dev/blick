@@ -1,6 +1,6 @@
 const { ipcMain, BrowserWindow, BrowserView, TouchBar } = require('electron');
-
 const { TouchBarButton, TouchBarSpacer } = TouchBar;
+const path = require('path');
 
 const toolbarHeight = 56;
 let window;
@@ -20,13 +20,13 @@ function openDevTools() {
 
 function createTouchBar() {
   const rotate = new TouchBarButton({
-    icon: 'assets/img/screen-rotation.png',
+    icon: path.join(__dirname, '../assets/img/screen-rotation.png'),
     click: () => {
       rotateWindow();
     }
   });
   const devTools = new TouchBarButton({
-    icon: 'assets/img/code.png',
+    icon: path.join(__dirname, '../assets/img/code.png'),
     click: () => {
       openDevTools();
     }
