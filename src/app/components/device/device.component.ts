@@ -10,8 +10,15 @@ import {
   HostBinding,
   OnDestroy
 } from '@angular/core';
-import { fromEvent, Subject, ReplaySubject, Observable, of } from 'rxjs';
-import { map, tap, first, flatMap } from 'rxjs/operators';
+import {
+  fromEvent,
+  Subject,
+  ReplaySubject,
+  Observable,
+  of,
+  BehaviorSubject
+} from 'rxjs';
+import { map, tap, first, flatMap, takeUntil } from 'rxjs/operators';
 import { Dispatch } from '@ngxs-labs/dispatch-decorator';
 import { Device } from '@store/devices/devices.types';
 import { HeightPipe } from '@pipes/height.pipe';
@@ -34,7 +41,7 @@ export class DeviceComponent implements OnInit, OnDestroy {
   @Input() url: string;
 
   document$: ReplaySubject<Document> = new ReplaySubject();
-  finishedLoading$: Observable<any[]>;
+  finishedLoading$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   onDestroy$ = new Subject();
 
@@ -155,21 +162,24 @@ export class DeviceComponent implements OnInit, OnDestroy {
   }
 
   initDevice() {
-    this.finishedLoading$ = fromEvent(this.iframe.nativeElement, 'load').pipe(
-      flatMap(() => of([]))
-    );
+    fromEvent(this.iframe.nativeElement, 'load')
+      .pipe(
+        first(),
+        tap(() => this.finishedLoading$.next(true))
+      )
+      .subscribe();
 
     if (this.isElectron) {
       this.finishedLoading$
         .pipe(
-          first(),
           // tap(() => this.setUserAgent()),
           tap(() => this.initTouch()),
           tap(() => this.silence()),
           map<Event, Document>(
             () => this.iframe.nativeElement.contentWindow.document
           ),
-          tap<Document>(doc => this.document$.next(doc))
+          tap<Document>(doc => this.document$.next(doc)),
+          takeUntil(this.onDestroy$)
         )
         .subscribe();
     }
@@ -220,5 +230,16 @@ export class DeviceComponent implements OnInit, OnDestroy {
     this.electronService.ipcRenderer.on('detach-device-reply', (event, arg) =>
       console.log('detach-device-reply', arg)
     );
+  }
+
+  reload() {
+    this.finishedLoading$.next(false);
+    this.iframe.nativeElement.src = this.iframe.nativeElement.src;
+    fromEvent(this.iframe.nativeElement, 'load')
+      .pipe(
+        first(),
+        tap(() => this.finishedLoading$.next(true))
+      )
+      .subscribe();
   }
 }

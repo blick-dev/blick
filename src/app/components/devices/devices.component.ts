@@ -81,4 +81,8 @@ export class DevicesComponent implements OnInit, AfterContentInit, OnDestroy {
 
     this.documents$.pipe(takeUntil(this.onDestroy$)).subscribe();
   }
+
+  reload() {
+    this.devices.forEach(item => item.reload());
+  }
 }

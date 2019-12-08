@@ -26,7 +26,7 @@
 </ion-toolbar>
 <iframe frameborder="0" #frame [src]="url | plt : device.platform | safe" [width]="device | width | log | pixel"
   [height]="device | height | log | pixel"></iframe>
-<fiv-spinner *ngIf="finishedLoading$ | pending | async" [circleRadius]="16" [diameter]="40" [strokeWidth]="4"
+<fiv-spinner *ngIf="!(finishedLoading$ | async)" [circleRadius]="16" [diameter]="40" [strokeWidth]="4"
   [mode]="'indeterminate'"></fiv-spinner>
 <div #overlay [ngClass]="{'hidden': focus?.name === device?.name}"
   (click)="$event.preventDefault(); $event.stopPropagation()" class="no-touch"></div>
