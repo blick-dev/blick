@@ -19,6 +19,7 @@ import {
 } from './devices.action';
 import { Device, DeviceOrientation } from './devices.types';
 import { patch, updateItem } from '@ngxs/store/operators';
+import { Router } from '@angular/router';
 
 export interface DevicesStateModel {
   devices: Device[];
@@ -70,7 +71,7 @@ export interface DevicesStateModel {
   }
 })
 export class DevicesState {
-  constructor(private store: Store) {}
+  constructor(private router: Router) {}
 
   @Selector()
   static devices(state: DevicesStateModel) {

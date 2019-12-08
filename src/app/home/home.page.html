@@ -1,7 +1,7 @@
 <ion-header no-border>
   <ion-toolbar class="url-bar ion-padding-horizontal">
     <ion-buttons slot="start">
-      <ion-button>
+      <ion-button name="reload devices">
         <ion-icon slot="icon-only"></ion-icon>
         <img *ngIf="devices | async as devices" alt="logo for blick.dev app" class="logo"
           src="assets/icon/blick-logo.svg" (click)="ds.reload()">
@@ -17,11 +17,11 @@
     </ion-range>
     <ion-buttons slot="end">
       <div class="delimiter"></div>
-      <ion-button (click)="setTheme(t === 'dark' ? 'light' : 'dark')" *ngIf="theme | async as t"
+      <ion-button name="switch theme" (click)="setTheme(t === 'dark' ? 'light' : 'dark')" *ngIf="theme | async as t"
         [matTooltip]="t === 'dark' ? 'lightmode' : 'darkmode'">
         <ion-icon [ngClass]="[t]" slot="icon-only" name="contrast"></ion-icon>
       </ion-button>
-      <ion-button (click)="appearance.open($event)" [matTooltip]="'grid settings'">
+      <ion-button name="grid settings" (click)="appearance.open($event)" [matTooltip]="'grid settings'">
         <ion-icon slot="icon-only" name="grid"></ion-icon>
       </ion-button>
 
@@ -37,7 +37,7 @@
   <div class="landing" *ngIf="devices | empty | async">
     <div>
       <img alt="no devices found illustration" class="no-devices" src="assets/no_devices.svg">
-      <ion-button fill="outline" shape="round" (click)="addDevice()">
+      <ion-button name="add device" fill="outline" shape="round" (click)="addDevice()">
         <mat-icon slot="start">devices</mat-icon>
         <ion-label class="ion-padding-start">add new device</ion-label>
       </ion-button>
@@ -51,11 +51,11 @@
 <ion-footer translucent="true">
   <ion-toolbar ion-padding-horizontal>
     <ion-buttons slot="start">
-      <ion-button (click)="addDevice()" matTooltip="add device">
+      <ion-button name="add device" (click)="addDevice()" matTooltip="add device">
         <mat-icon>devices</mat-icon>
         <ion-icon slot="icon-only"></ion-icon>
       </ion-button>
-      <ion-button (click)="toggleOrientation()" *ngIf="(orientation | async) as o"
+      <ion-button name="toggle orientation" (click)="toggleOrientation()" *ngIf="(orientation | async) as o"
         [matTooltip]="o === 'portrait' ? 'switch to landscape':'switch to portrait'">
         <mat-icon>screen_rotation</mat-icon>
         <ion-icon slot="icon-only"></ion-icon>

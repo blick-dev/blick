@@ -1,30 +1,30 @@
 <ion-toolbar #toolbar>
   <ion-buttons slot="start">
-    <ion-button matTooltip="delete device" (click)="delete(device.name)">
+    <ion-button name="delete device" matTooltip="delete device" (click)="delete(device.name)">
       <ion-icon slot="icon-only" name="close"></ion-icon>
     </ion-button>
   </ion-buttons>
-  <ion-button matTooltip="device settings" fill="clear" color="dark" (click)="edit.open($event)">
+  <ion-button name="device settings" matTooltip="device settings" fill="clear" color="dark" (click)="edit.open($event)">
     {{device.name || 'Custom'}}
     ({{device.width}}x{{device.height}})
   </ion-button>
   <ion-buttons slot="end">
-    <ion-button [matTooltip]="device.orientation === 'portrait' ? 'switch to landscape' : 'switch to portrait'"
+    <ion-button name="rotate device" [matTooltip]="device.orientation === 'portrait' ? 'switch to landscape' : 'switch to portrait'"
       (click)="toggleDeviceOrientation(device.name)">
       <mat-icon>screen_rotation</mat-icon>
       <ion-icon slot="icon-only"></ion-icon>
     </ion-button>
     <span matTooltip="screenshots coming soon">
-      <ion-button [disabled]="true" matTooltip="take screenshot">
+      <ion-button name="take screenshot" [disabled]="true" matTooltip="take screenshot">
         <ion-icon slot="icon-only" name="camera"></ion-icon>
       </ion-button>
     </span>
-    <ion-button *ngIf="isElectron" matTooltip="Detach device in separate window" (click)="detatchDevice(device, url)">
+    <ion-button name="detach device" *ngIf="isElectron" matTooltip="Detach device in separate window" (click)="detatchDevice(device, url)">
       <ion-icon slot="icon-only" name="open"></ion-icon>
     </ion-button>
   </ion-buttons>
 </ion-toolbar>
-<iframe frameborder="0" #frame [src]="url | plt : device.platform | safe" [width]="device | width | log | pixel"
+<iframe [title]="device.name" frameborder="0" #frame [src]="url | plt : device.platform | safe" [width]="device | width | log | pixel"
   [height]="device | height | log | pixel"></iframe>
 <fiv-spinner *ngIf="!(finishedLoading$ | async)" [circleRadius]="16" [diameter]="40" [strokeWidth]="4"
   [mode]="'indeterminate'"></fiv-spinner>

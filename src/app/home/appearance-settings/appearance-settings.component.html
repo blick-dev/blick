@@ -23,13 +23,13 @@
 
   <ion-buttons>
     <ion-label class="ion-margin-start">alignment</ion-label>
-    <ion-button [ngClass]="{'active': align === 'vertical' }" (click)="vertical()" matTooltip="fit vertically">
+    <ion-button name="fit vertically" [ngClass]="{'active': align === 'vertical' }" (click)="vertical()" matTooltip="fit vertically">
       <ion-icon slot="icon-only"></ion-icon>
       <mat-icon style="transform: rotateZ(90deg);">arrow_right_alt</mat-icon>
     </ion-button>
     <ion-range (ionChange)="rangeChange($event)" [min]="min" [max]="max" steps="1" [value]="width" color="primary">
     </ion-range>
-    <ion-button [ngClass]="{'active': align === 'horizontal' }" (click)="horizontal()" matTooltip="one horizontal row">
+    <ion-button name="one horizontal row" [ngClass]="{'active': align === 'horizontal' }" (click)="horizontal()" matTooltip="one horizontal row">
       <ion-icon slot="icon-only"></ion-icon>
       <mat-icon>arrow_right_alt</mat-icon>
     </ion-button>
