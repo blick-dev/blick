@@ -1,8 +1,43 @@
-const { ipcMain, BrowserWindow, BrowserView } = require('electron');
+const { ipcMain, BrowserWindow, BrowserView, TouchBar } = require('electron');
+
+const { TouchBarButton, TouchBarSpacer } = TouchBar;
 
 const toolbarHeight = 56;
 let window;
 let view;
+
+function rotateWindow() {
+  const bounds = window.getBounds();
+  window.setBounds({
+    height: bounds.width,
+    width: bounds.height
+  });
+}
+
+function openDevTools() {
+  view.webContents.openDevTools({ mode: 'detach' });
+}
+
+function createTouchBar() {
+  const rotate = new TouchBarButton({
+    icon: 'assets/img/screen-rotation.png',
+    click: () => {
+      rotateWindow();
+    }
+  });
+  const devTools = new TouchBarButton({
+    icon: 'assets/img/code.png',
+    click: () => {
+      openDevTools();
+    }
+  });
+
+  const touchBar = new TouchBar({
+    items: [rotate, new TouchBarSpacer({ size: 'small' }), devTools]
+  });
+
+  return touchBar;
+}
 
 ipcMain.on('detach-device', (event, arg) => {
   const isPortraitMode = arg.device.orientation === 'portrait';
@@ -20,8 +55,10 @@ ipcMain.on('detach-device', (event, arg) => {
     fullscreen: false
   });
 
+  window.setTouchBar(createTouchBar());
+
   window.on('close', () => (window = null));
-  window.loadURL(`file://${__dirname}/../src/detach-device.html`);
+  window.loadURL(`file://${__dirname}/../src/detached-device.html`);
   window.show();
 
   view = new BrowserView({
@@ -48,13 +85,9 @@ ipcMain.on('detach-device', (event, arg) => {
 });
 
 ipcMain.on('open-dev-tools', (event, arg) => {
-  view.webContents.openDevTools({ mode: 'detach' });
+  openDevTools();
 });
 
 ipcMain.on('rotate-device', (event, arg) => {
-  const bounds = window.getBounds();
-  window.setBounds({
-    height: bounds.width,
-    width: bounds.height
-  });
+  rotateWindow();
 });
