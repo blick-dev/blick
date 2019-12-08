@@ -5,19 +5,13 @@ ion-range {
 .url-input {
   --background: var(--ion-color-light-tint);
   --padding-bottom: 8px;
-  --padding-end: 4px;
+  --padding-end: 8px;
   --padding-start: 24px;
   --padding-top: 8px;
   border-radius: 18px;
   height: 36px;
   font-size: 1.2rem;
   font-weight: 500;
-  margin-left: 12px;
-}
-
-.url-bar-wrapper {
-  display: flex;
-  align-items: center;
 }
 
 .logo {
