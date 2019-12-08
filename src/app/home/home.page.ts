@@ -10,7 +10,7 @@ import {
 import { DevicesState } from './../store/devices/devices.state';
 import { Component, OnDestroy } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { filter, takeUntil, tap } from 'rxjs/operators';
+import { filter, takeUntil, tap, first } from 'rxjs/operators';
 import { Select } from '@ngxs/store';
 import { ActivatedRoute } from '@angular/router';
 import { Device, DeviceOrientation } from '@store/devices/devices.types';
@@ -46,6 +46,13 @@ export class HomePage implements OnDestroy {
   onDestroy$ = new Subject();
 
   constructor(private activeRoute: ActivatedRoute) {
+    this.url$
+      .pipe(
+        first(),
+        tap(url => this.navigate(url))
+      )
+      .subscribe();
+
     this.activeRoute.queryParams
       .pipe(
         filter(params => !!params.url),

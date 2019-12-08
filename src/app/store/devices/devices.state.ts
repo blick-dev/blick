@@ -19,7 +19,7 @@ import {
 } from './devices.action';
 import { Device, DeviceOrientation } from './devices.types';
 import { patch, updateItem } from '@ngxs/store/operators';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 export interface DevicesStateModel {
   devices: Device[];
@@ -71,7 +71,7 @@ export interface DevicesStateModel {
   }
 })
 export class DevicesState {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private activatedRoute: ActivatedRoute) {}
 
   @Selector()
   static devices(state: DevicesStateModel) {
@@ -201,6 +201,11 @@ export class DevicesState {
 
   @Action(NavigateURL)
   navigate(ctx: StateContext<DevicesStateModel>, action: NavigateURL) {
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: { url: action.url },
+      queryParamsHandling: 'merge'
+    });
     ctx.patchState({ url: action.url });
   }
 
