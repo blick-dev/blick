@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+import { ipcRenderer } from 'electron';
 
 const openDevTools = document.getElementById('open-dev-tools');
 const rotateDevice = document.getElementById('rotate-device');

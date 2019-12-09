@@ -2,9 +2,11 @@
   "name": "blick",
   "description": "blick",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "electron .",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "start": "npm run build && electron ./dist/index.js",
     "package:mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --out=out --icon=assets/app-icon/mac/app.icns --extend-info=assets/mac/info.plist"
   },
   "dependencies": {
@@ -15,7 +17,8 @@
     "puppeteer-in-electron": "1.0.7"
   },
   "devDependencies": {
-    "electron-packager": "14.1.1"
+    "electron-packager": "14.1.1",
+    "typescript": "3.7.3"
   },
   "keywords": [
     "capacitor",

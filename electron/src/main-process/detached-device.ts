@@ -1,10 +1,10 @@
-const { ipcMain, BrowserWindow, BrowserView, TouchBar } = require('electron');
+import { ipcMain, BrowserWindow, BrowserView, TouchBar } from 'electron';
 const { TouchBarButton, TouchBarSpacer } = TouchBar;
-const path = require('path');
+import * as path from 'path';
 
 const toolbarHeight = 56;
-let window;
-let view;
+let window: BrowserWindow;
+let view: BrowserView;
 
 function rotateWindow() {
   const bounds = window.getBounds();
@@ -20,13 +20,13 @@ function openDevTools() {
 
 function createTouchBar() {
   const rotate = new TouchBarButton({
-    icon: path.join(__dirname, '../assets/img/screen-rotation.png'),
+    icon: path.join(__dirname, '../../assets/img/screen-rotation.png'),
     click: () => {
       rotateWindow();
     }
   });
   const devTools = new TouchBarButton({
-    icon: path.join(__dirname, '../assets/img/code.png'),
+    icon: path.join(__dirname, '../../assets/img/code.png'),
     click: () => {
       openDevTools();
     }
@@ -58,7 +58,7 @@ ipcMain.on('detach-device', (event, arg) => {
   window.setTouchBar(createTouchBar());
 
   window.on('close', () => (window = null));
-  window.loadURL(`file://${__dirname}/../src/detached-device.html`);
+  window.loadURL(`file://${__dirname}/../../src/pages/detached-device.html`);
   window.show();
 
   view = new BrowserView({
