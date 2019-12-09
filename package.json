@@ -12,6 +12,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "electron": "ionic build && npm run electron:copy && npm run electron:start",
+    "electron:prod": "ionic build --prod && npm run electron:copy",
     "electron:copy": "npx cap copy electron",
     "electron:start": "cd electron && npm start",
     "cypress": "cypress open",
