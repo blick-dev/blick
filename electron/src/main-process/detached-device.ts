@@ -1,13 +1,18 @@
 import { ipcMain, BrowserWindow, BrowserView, TouchBar } from 'electron';
-const { TouchBarButton, TouchBarSpacer } = TouchBar;
 import * as path from 'path';
 
+const { TouchBarButton, TouchBarSpacer } = TouchBar;
+
+const windowExtraToolbarHeight = 76;
 const toolbarHeight = 56;
 let window: BrowserWindow;
 let view: BrowserView;
+let deviceHeight: number;
+let deviceWidth: number;
 
 function rotateWindow() {
   const bounds = window.getBounds();
+  // TODO rotate window correctly
   window.setBounds({
     height: bounds.width,
     width: bounds.height
@@ -42,15 +47,18 @@ function createTouchBar() {
 ipcMain.on('detach-device', (event, arg) => {
   const isPortraitMode = arg.device.orientation === 'portrait';
 
-  const height = isPortraitMode
-    ? arg.device.height + toolbarHeight
-    : arg.device.width + toolbarHeight;
-  const width = isPortraitMode ? arg.device.width : arg.device.height;
+  deviceHeight = arg.device.height;
+  deviceWidth = arg.device.width;
+
+  const windowHeight = isPortraitMode
+    ? deviceHeight + windowExtraToolbarHeight
+    : deviceWidth + windowExtraToolbarHeight;
+  const windowWidth = isPortraitMode ? deviceWidth : deviceHeight;
 
   window = new BrowserWindow({
     webPreferences: { nodeIntegration: true },
-    height: height,
-    width: width,
+    height: windowHeight,
+    width: windowWidth,
     resizable: false,
     fullscreen: false
   });
@@ -73,10 +81,10 @@ ipcMain.on('detach-device', (event, arg) => {
   view.setBounds({
     x: 0,
     y: toolbarHeight,
-    height: height,
-    width: width
+    height: isPortraitMode ? deviceHeight : deviceWidth,
+    width: isPortraitMode ? deviceWidth : deviceHeight
   });
-  view.setAutoResize({ horizontal: true });
+  view.setAutoResize({ horizontal: isPortraitMode, vertical: !isPortraitMode });
 
   // TODO add user agent to load url
   view.webContents.loadURL(arg.url);
