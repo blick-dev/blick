@@ -1,3 +1,4 @@
+import { ElectronService } from 'ngx-electron';
 import {
   NavigateURL,
   ClearFocus,
@@ -8,7 +9,7 @@ import {
   UpdateZoom
 } from './../store/appearance/appearance.action';
 import { DevicesState } from './../store/devices/devices.state';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { filter, takeUntil, tap, first } from 'rxjs/operators';
 import { Select } from '@ngxs/store';
@@ -28,7 +29,7 @@ import { SelectSnapshot } from '@ngxs-labs/select-snapshot';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss']
 })
-export class HomePage implements OnDestroy {
+export class HomePage implements OnDestroy, OnInit {
   @Select(DevicesState.url)
   url$: Observable<string>;
   @Select(DevicesState.devices)
@@ -45,7 +46,10 @@ export class HomePage implements OnDestroy {
 
   onDestroy$ = new Subject();
 
-  constructor(private activeRoute: ActivatedRoute) {
+  constructor(
+    private activeRoute: ActivatedRoute,
+    private electronService: ElectronService
+  ) {
     this.url$
       .pipe(
         first(),
@@ -60,6 +64,20 @@ export class HomePage implements OnDestroy {
         takeUntil(this.onDestroy$)
       )
       .subscribe();
+  }
+
+  ngOnInit(): void {
+    this.sendStartUp();
+  }
+
+  sendStartUp(): void {
+    this.electronService.ipcRenderer.send('start-up', {});
+
+    this.electronService.ipcRenderer.on('start-up-reply', (event, arg) => {
+      if (arg.url) {
+        this.navigate(arg.url);
+      }
+    });
   }
 
   ngOnDestroy(): void {
