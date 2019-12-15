@@ -1,5 +1,13 @@
 import { RegisterUndoAction, Undo, InitUndoState, Redo } from './undo.action';
-import { State, StateContext, Action, Store, Selector } from '@ngxs/store';
+import {
+  State,
+  StateContext,
+  Action,
+  Store,
+  Selector,
+  NgxsOnChanges,
+  NgxsSimpleChange
+} from '@ngxs/store';
 
 export interface History {
   undoLabel: string;
@@ -21,9 +29,7 @@ export interface UndoStateModel {
     future: []
   }
 })
-export class UndoState {
-  constructor(private store: Store) {}
-
+export class UndoState implements NgxsOnChanges {
   @Selector()
   static canUndo(state: UndoStateModel) {
     return state.past.length > 0;
@@ -44,6 +50,12 @@ export class UndoState {
   @Selector()
   static canRedo(state: UndoStateModel) {
     return state.future.length > 0;
+  }
+
+  constructor(private store: Store) {}
+
+  ngxsOnChanges(change: NgxsSimpleChange<UndoStateModel>) {
+    console.log(change.previousValue, change.currentValue);
   }
 
   // @Action(RegisterUndoAction)
