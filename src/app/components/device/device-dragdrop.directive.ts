@@ -1,4 +1,3 @@
-import { ZenDevice } from './../../store/devices/devices.action';
 import { Directive, OnInit, ElementRef, Host } from '@angular/core';
 import { IonContent } from '@ionic/angular';
 import { WidthPipe } from '@pipes/width.pipe';
@@ -20,9 +19,7 @@ import { AppearanceState } from '@store/appearance/appearance.state';
 import { DevicesState } from '@store/devices/devices.state';
 import { DeviceComponent } from './device.component';
 import { SelectSnapshot } from '@ngxs-labs/select-snapshot';
-import { Dispatch } from '@ngxs-labs/dispatch-decorator';
 import { Device } from '@store/devices/devices.types';
-import { FocusDevice } from '@store/devices/devices.action';
 
 export interface DeviceDragEvent {
   left: number;
