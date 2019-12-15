@@ -1,4 +1,3 @@
-import { platform } from './../../../../../scripts/src/params';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Device } from '@store/devices/devices.types';
 import {

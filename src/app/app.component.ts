@@ -1,6 +1,6 @@
 import { UpdateTheme } from './store/appearance/appearance.action';
 import { Theme } from './store/appearance/appearance.types';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Select } from '@ngxs/store';
 import { AppearanceState } from '@store/appearance/appearance.state';
 import { Observable } from 'rxjs';
