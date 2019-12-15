@@ -1,35 +1,76 @@
-import { ipcMain, BrowserWindow, BrowserView, TouchBar } from 'electron';
+import {
+  ipcMain,
+  BrowserWindow,
+  BrowserView,
+  TouchBar,
+  IpcMainEvent
+} from 'electron';
 import * as path from 'path';
 
 const { TouchBarButton, TouchBarSpacer } = TouchBar;
 
-const windowExtraToolbarHeight = 76;
+const windowExtraHeight = 22;
 const toolbarHeight = 56;
+let deviceOrientation: 'portrait' | 'landscape';
+// TODO window and view are overrwritten for new detachted devices
 let window: BrowserWindow;
 let view: BrowserView;
 let deviceHeight: number;
 let deviceWidth: number;
 
-function rotateWindow() {
-  const bounds = window.getBounds();
-  // TODO rotate window correctly
+const isPortraitMode = (): boolean => {
+  return deviceOrientation === 'portrait';
+};
+
+const getWindowHeight = (): number => {
+  const height = isPortraitMode() ? deviceHeight : deviceWidth;
+  return height + toolbarHeight + windowExtraHeight;
+};
+
+const getWindowWidth = (): number => {
+  return isPortraitMode() ? deviceWidth : deviceHeight;
+};
+
+const getViewHeight = (): number => {
+  return isPortraitMode() ? deviceHeight : deviceWidth;
+};
+
+const getViewWidth = (): number => {
+  return isPortraitMode() ? deviceWidth : deviceHeight;
+};
+
+const rotateWindow = () => {
+  deviceOrientation = isPortraitMode() ? 'landscape' : 'portrait';
+
   window.setBounds({
-    height: bounds.width,
-    width: bounds.height
+    height: getWindowHeight(),
+    width: getWindowWidth()
   });
-}
 
-function openDevTools() {
+  view.setBounds({
+    x: 0,
+    y: toolbarHeight,
+    height: getViewHeight(),
+    width: getViewWidth()
+  });
+};
+
+const openDevTools = () => {
   view.webContents.openDevTools({ mode: 'detach' });
-}
+};
 
-function createTouchBar() {
+const closeDevTools = () => {
+  view.webContents.closeDevTools();
+};
+
+const createTouchBar = () => {
   const rotate = new TouchBarButton({
     icon: path.join(__dirname, '../../assets/img/screen-rotation.png'),
     click: () => {
       rotateWindow();
     }
   });
+
   const devTools = new TouchBarButton({
     icon: path.join(__dirname, '../../assets/img/code.png'),
     click: () => {
@@ -42,33 +83,28 @@ function createTouchBar() {
   });
 
   return touchBar;
-}
+};
 
-ipcMain.on('detach-device', (event, arg) => {
-  const isPortraitMode = arg.device.orientation === 'portrait';
-
-  deviceHeight = arg.device.height;
-  deviceWidth = arg.device.width;
-
-  const windowHeight = isPortraitMode
-    ? deviceHeight + windowExtraToolbarHeight
-    : deviceWidth + windowExtraToolbarHeight;
-  const windowWidth = isPortraitMode ? deviceWidth : deviceHeight;
-
+const createDetachedBrowserWindow = () => {
   window = new BrowserWindow({
     webPreferences: { nodeIntegration: true },
-    height: windowHeight,
-    width: windowWidth,
+    height: getWindowHeight(),
+    width: getWindowWidth(),
     resizable: false,
     fullscreen: false
   });
 
   window.setTouchBar(createTouchBar());
 
-  window.on('close', () => (window = null));
+  window.on('close', () => {
+    closeDevTools();
+    view = null;
+    window = null;
+  });
   window.loadURL(`file://${__dirname}/../../src/pages/detached-device.html`);
-  window.show();
+};
 
+const createDeviceView = async (url: string) => {
   view = new BrowserView({
     webPreferences: {
       devTools: true,
@@ -77,25 +113,37 @@ ipcMain.on('detach-device', (event, arg) => {
       contextIsolation: true
     }
   });
+
   window.setBrowserView(view);
+
   view.setBounds({
     x: 0,
     y: toolbarHeight,
-    height: isPortraitMode ? deviceHeight : deviceWidth,
-    width: isPortraitMode ? deviceWidth : deviceHeight
+    height: getViewHeight(),
+    width: getViewWidth()
   });
-  view.setAutoResize({ horizontal: isPortraitMode, vertical: !isPortraitMode });
 
   // TODO add user agent to load url
-  view.webContents.loadURL(arg.url);
+  await view.webContents.loadURL(url);
+};
 
+// IPC
+ipcMain.on('detach-device', async (event, arg) => {
+  deviceOrientation = arg.device.orientation;
+  deviceHeight = arg.device.height;
+  deviceWidth = arg.device.width;
+
+  createDetachedBrowserWindow();
+  await createDeviceView(arg.url);
+
+  window.show();
   event.sender.send('detach-device-reply', { windowId: window.id });
 });
 
-ipcMain.on('open-dev-tools', (event, arg) => {
+ipcMain.on('open-dev-tools', (event: IpcMainEvent, arg) => {
   openDevTools();
 });
 
-ipcMain.on('rotate-device', (event, arg) => {
+ipcMain.on('rotate-device', (event: IpcMainEvent, arg) => {
   rotateWindow();
 });
