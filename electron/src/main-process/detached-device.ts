@@ -91,11 +91,13 @@ const createDetachedBrowserWindow = () => {
     height: getWindowHeight(),
     width: getWindowWidth(),
     resizable: false,
-    fullscreen: false
+    fullscreen: false,
+    show: false
   });
 
   window.setTouchBar(createTouchBar());
 
+  window.once('ready-to-show', () => window.show());
   window.on('close', () => {
     closeDevTools();
     view = null;
@@ -136,7 +138,6 @@ ipcMain.on('detach-device', async (event, arg) => {
   createDetachedBrowserWindow();
   await createDeviceView(arg.url);
 
-  window.show();
   event.sender.send('detach-device-reply', { windowId: window.id });
 });
 
