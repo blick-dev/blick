@@ -12,9 +12,6 @@ const { TouchBarButton, TouchBarSpacer } = TouchBar;
 const windowExtraHeight = 22;
 const toolbarHeight = 56;
 let deviceOrientation: 'portrait' | 'landscape';
-// TODO window and view are overrwritten for new detachted devices
-let window: BrowserWindow;
-let view: BrowserView;
 let deviceHeight: number;
 let deviceWidth: number;
 
@@ -39,7 +36,7 @@ const getViewWidth = (): number => {
   return isPortraitMode() ? deviceWidth : deviceHeight;
 };
 
-const rotateWindow = () => {
+const rotateWindow = (window: BrowserWindow) => {
   deviceOrientation = isPortraitMode() ? 'landscape' : 'portrait';
 
   window.setBounds({
@@ -47,7 +44,7 @@ const rotateWindow = () => {
     width: getWindowWidth()
   });
 
-  view.setBounds({
+  window.getBrowserView().setBounds({
     x: 0,
     y: toolbarHeight,
     height: getViewHeight(),
@@ -56,18 +53,24 @@ const rotateWindow = () => {
 };
 
 const openDevTools = () => {
+  const window = BrowserWindow.getFocusedWindow();
+  if (!window) {
+    return;
+  }
+
+  const view = window.getBrowserView();
   view.webContents.openDevTools({ mode: 'detach' });
 };
 
-const closeDevTools = () => {
+const closeDevTools = (view: BrowserView) => {
   view.webContents.closeDevTools();
 };
 
-const createTouchBar = () => {
+const createTouchBar = (window: BrowserWindow) => {
   const rotate = new TouchBarButton({
     icon: path.join(__dirname, '../../assets/img/screen-rotation.png'),
     click: () => {
-      rotateWindow();
+      rotateWindow(window);
     }
   });
 
@@ -86,28 +89,30 @@ const createTouchBar = () => {
 };
 
 const createDetachedBrowserWindow = () => {
-  window = new BrowserWindow({
+  let window = new BrowserWindow({
     webPreferences: { nodeIntegration: true },
     height: getWindowHeight(),
     width: getWindowWidth(),
     resizable: false,
     fullscreen: false,
+    // icon: set icon for android, ios or desktop device
     show: false
   });
 
-  window.setTouchBar(createTouchBar());
+  window.setTouchBar(createTouchBar(window));
 
   window.once('ready-to-show', () => window.show());
   window.on('close', () => {
-    closeDevTools();
-    view = null;
+    closeDevTools(window.getBrowserView());
     window = null;
   });
   window.loadURL(`file://${__dirname}/../../src/pages/detached-device.html`);
+
+  return window;
 };
 
-const createDeviceView = async (url: string) => {
-  view = new BrowserView({
+const createDeviceView = async (window: BrowserWindow, url: string) => {
+  const view = new BrowserView({
     webPreferences: {
       devTools: true,
       enableRemoteModule: false,
@@ -135,10 +140,10 @@ ipcMain.on('detach-device', async (event, arg) => {
   deviceHeight = arg.device.height;
   deviceWidth = arg.device.width;
 
-  createDetachedBrowserWindow();
-  await createDeviceView(arg.url);
+  const newWindow = createDetachedBrowserWindow();
+  await createDeviceView(newWindow, arg.url);
 
-  event.sender.send('detach-device-reply', { windowId: window.id });
+  event.sender.send('detach-device-reply', { windowId: newWindow.id });
 });
 
 ipcMain.on('open-dev-tools', (event: IpcMainEvent, arg) => {
@@ -146,5 +151,5 @@ ipcMain.on('open-dev-tools', (event: IpcMainEvent, arg) => {
 });
 
 ipcMain.on('rotate-device', (event: IpcMainEvent, arg) => {
-  rotateWindow();
+  rotateWindow(BrowserWindow.getFocusedWindow());
 });
