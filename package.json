@@ -15,6 +15,7 @@
     "electron:prod": "ionic build --prod && npm run electron:copy",
     "electron:copy": "npx cap copy electron",
     "electron:start": "cd electron && npm start",
+    "electron:package:mac": "npm run electron:prod && cd electron && npm run package:mac",
     "cypress": "cypress open",
     "format": "prettier --write \"src/**/*{.ts,.scss}\""
   },
