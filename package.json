@@ -1,7 +1,7 @@
 {
   "name": "blick",
   "description": "blick",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "Fivethree",
   "homepage": "https://blick.dev",
   "scripts": {
@@ -17,7 +17,8 @@
     "electron:start": "cd electron && npm start",
     "electron:package:mac": "npm run electron:prod && cd electron && npm run package:mac",
     "cypress": "cypress open",
-    "format": "prettier --write \"src/**/*{.ts,.scss}\""
+    "format": "prettier --write \"src/**/*{.ts,.scss}\"",
+    "version": "conventional-changelog -p angular -i ./CHANGELOG.md -s"
   },
   "private": true,
   "dependencies": {
