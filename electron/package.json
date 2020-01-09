@@ -1,6 +1,7 @@
 {
   "name": "@blick.dev/app",
-  "description": "blick",
+  "productName": "blick",
+  "description": "Multi-window responsive design tool for web developers.",
   "version": "0.5.0",
   "main": "dist/index.js",
   "scripts": {
@@ -11,7 +12,6 @@
   },
   "dependencies": {
     "@capacitor/electron": "1.4.0",
-    "electron": "7.1.8",
     "electron-is-dev": "1.1.0",
     "minimist": "1.2.0",
     "puppeteer-core": "2.0.0",
@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@types/minimist": "1.2.0",
+    "electron": "7.1.8",
     "electron-packager": "14.1.1",
     "typescript": "3.7.3"
   },
