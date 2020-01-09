@@ -48,7 +48,7 @@ export class DevicesDragDropDirective implements AfterViewInit {
   doubleclicks$: Observable<Device>;
 
   @Select(DevicesState.nondrag)
-  private nondrag: Observable<Device[]>;
+  nondrag: Observable<Device[]>;
 
   @SelectSnapshot(AppearanceState.zoom)
   zoom: number;

@@ -1,11 +1,10 @@
-const { app, BrowserWindow } = require('electron');
-const glob = require('glob');
+import { app, BrowserWindow } from 'electron';
+import * as glob from 'glob';
+import * as path from 'path';
+
 app.commandLine.appendSwitch('touch-events', 'enabled');
 
-const path = require('path');
-
-let mainWindow = null;
-let browser;
+let mainWindow: BrowserWindow = null;
 
 function createWindow() {
   loadMainProcess();
@@ -59,7 +58,7 @@ function createWindow() {
     features: [{ name: 'pointer', value: 'coarse' }]
   });
 
-  mainWindow.loadURL(`file://${__dirname}/app/index.html`);
+  mainWindow.loadURL(`file://${__dirname}/../app/index.html`);
   mainWindow.webContents.on('dom-ready', () => {
     mainWindow.show();
   });
@@ -90,7 +89,6 @@ app.on('activate', () => {
     createWindow();
   }
 });
-// }
 
 // Define any IPC or other custom functionality below here
 function loadMainProcess() {
