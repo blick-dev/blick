@@ -9,46 +9,60 @@ import * as path from 'path';
 
 const { TouchBarButton, TouchBarSpacer } = TouchBar;
 
+interface Device {
+  height: number;
+  width: number;
+  orientation: 'portrait' | 'landscape';
+}
+
+interface DeviceMap {
+  [windowId: number]: Device;
+}
+
 const windowExtraHeight = 22;
 const toolbarHeight = 56;
-let deviceOrientation: 'portrait' | 'landscape';
-let deviceHeight: number;
-let deviceWidth: number;
+const devices: DeviceMap = {};
 
-const isPortraitMode = (): boolean => {
-  return deviceOrientation === 'portrait';
+const isPortraitMode = (device: Device): boolean => {
+  return device.orientation === 'portrait';
 };
 
-const getWindowHeight = (): number => {
-  const height = isPortraitMode() ? deviceHeight : deviceWidth;
+const getWindowHeight = (device: Device): number => {
+  const height = isPortraitMode(device) ? device.height : device.width;
   return height + toolbarHeight + windowExtraHeight;
 };
 
-const getWindowWidth = (): number => {
-  return isPortraitMode() ? deviceWidth : deviceHeight;
+const getWindowWidth = (device: Device): number => {
+  return isPortraitMode(device) ? device.width : device.height;
 };
 
-const getViewHeight = (): number => {
-  return isPortraitMode() ? deviceHeight : deviceWidth;
+const getViewHeight = (device: Device): number => {
+  return isPortraitMode(device) ? device.height : device.width;
 };
 
-const getViewWidth = (): number => {
-  return isPortraitMode() ? deviceWidth : deviceHeight;
+const getViewWidth = (device: Device): number => {
+  return isPortraitMode(device) ? device.width : device.height;
 };
 
-const rotateWindow = (window: BrowserWindow) => {
-  deviceOrientation = isPortraitMode() ? 'landscape' : 'portrait';
+const updateDeviceOrientation = (window: BrowserWindow, device: Device) => {
+  devices[window.id].orientation = isPortraitMode(device)
+    ? 'landscape'
+    : 'portrait';
+};
+
+const rotateWindow = (window: BrowserWindow, device: Device) => {
+  updateDeviceOrientation(window, device);
 
   window.setBounds({
-    height: getWindowHeight(),
-    width: getWindowWidth()
+    height: getWindowHeight(device),
+    width: getWindowWidth(device)
   });
 
   window.getBrowserView().setBounds({
     x: 0,
     y: toolbarHeight,
-    height: getViewHeight(),
-    width: getViewWidth()
+    height: getViewHeight(device),
+    width: getViewWidth(device)
   });
 };
 
@@ -66,11 +80,11 @@ const closeDevTools = (view: BrowserView) => {
   view.webContents.closeDevTools();
 };
 
-const createTouchBar = (window: BrowserWindow) => {
+const createTouchBar = (window: BrowserWindow, device: Device) => {
   const rotate = new TouchBarButton({
     icon: path.join(__dirname, '../../assets/img/screen-rotation.png'),
     click: () => {
-      rotateWindow(window);
+      rotateWindow(window, device);
     }
   });
 
@@ -88,18 +102,18 @@ const createTouchBar = (window: BrowserWindow) => {
   return touchBar;
 };
 
-const createDetachedBrowserWindow = () => {
+const createDetachedBrowserWindow = (device: Device) => {
   let window = new BrowserWindow({
     webPreferences: { nodeIntegration: true },
-    height: getWindowHeight(),
-    width: getWindowWidth(),
+    height: getWindowHeight(device),
+    width: getWindowWidth(device),
     resizable: false,
     fullscreen: false,
     // icon: set icon for android, ios or desktop device
     show: false
   });
 
-  window.setTouchBar(createTouchBar(window));
+  window.setTouchBar(createTouchBar(window, device));
 
   window.once('ready-to-show', () => window.show());
   window.on('close', () => {
@@ -111,7 +125,11 @@ const createDetachedBrowserWindow = () => {
   return window;
 };
 
-const createDeviceView = async (window: BrowserWindow, url: string) => {
+const createDeviceView = async (
+  window: BrowserWindow,
+  device: Device,
+  url: string
+) => {
   const view = new BrowserView({
     webPreferences: {
       devTools: true,
@@ -126,8 +144,8 @@ const createDeviceView = async (window: BrowserWindow, url: string) => {
   view.setBounds({
     x: 0,
     y: toolbarHeight,
-    height: getViewHeight(),
-    width: getViewWidth()
+    height: getViewHeight(device),
+    width: getViewWidth(device)
   });
 
   // TODO add user agent to load url
@@ -136,12 +154,10 @@ const createDeviceView = async (window: BrowserWindow, url: string) => {
 
 // IPC
 ipcMain.on('detach-device', async (event, arg) => {
-  deviceOrientation = arg.device.orientation;
-  deviceHeight = arg.device.height;
-  deviceWidth = arg.device.width;
+  const newWindow = createDetachedBrowserWindow(arg.device);
+  await createDeviceView(newWindow, arg.device, arg.url);
 
-  const newWindow = createDetachedBrowserWindow();
-  await createDeviceView(newWindow, arg.url);
+  devices[newWindow.id] = arg.device;
 
   event.sender.send('detach-device-reply', { windowId: newWindow.id });
 });
@@ -151,5 +167,6 @@ ipcMain.on('open-dev-tools', (event: IpcMainEvent, arg) => {
 });
 
 ipcMain.on('rotate-device', (event: IpcMainEvent, arg) => {
-  rotateWindow(BrowserWindow.getFocusedWindow());
+  const window = BrowserWindow.getFocusedWindow();
+  rotateWindow(window, devices[window.id]);
 });
